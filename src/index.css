@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* General Body Styles */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
+
+/* --- THEME VARIABLES --- */
+/* --- Light Mode Palette --- */
+:root {
+  --background-primary: #f4f5f7;       /* Lighter grey background */
+  --background-secondary: #ffffff;      /* White for cards, sidebars */
+  --text-primary: #172b4d;              /* Dark blue-grey for main text */
+  --text-secondary: #6b778c;          /* Softer grey for subtext */
+  --border-color: #dfe1e6;              /* Light grey for borders */
+  --accent-primary: #0052cc;            /* A strong blue for primary actions */
+  --accent-primary-hover: #0041a3;    /* Darker blue on hover */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* --- Dark Mode Palette --- */
+body.dark {
+  --background-primary: #1d2125;       /* Dark charcoal background */
+  --background-secondary: #282c34;      /* Slightly lighter for cards */
+  --text-primary: #e6e6e6;              /* Off-white for main text */
+  --text-secondary: #a9b4c2;          /* Lighter grey for subtext */
+  --border-color: #434952;              /* Muted border color */
+  --accent-primary: #4791ff;            /* A brighter blue for dark mode */
+  --accent-primary-hover: #6ea9ff;    /* Even brighter on hover */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Apply themed styles */
+body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  transition: background-color 0.2s linear, color 0.2s linear;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
