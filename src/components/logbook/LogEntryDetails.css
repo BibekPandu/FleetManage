@@ -1,0 +1,10 @@
+.log-entry-details {
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background-color: #fcfcfc;
+}
+
+.log-entry-details h3 {
+  margin-top: 0;
+}

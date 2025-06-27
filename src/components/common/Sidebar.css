@@ -1,0 +1,155 @@
+/* REMOVE ALL LAYOUT CSS. Only keep styles for INTERNAL components. */
+/* The main layout is now handled by App.css */
+
+/* --- Sidebar Container --- */
+/* The layout (width, position, etc.) is now handled by App.css */
+/* This file only styles the *internal* look of the sidebar. */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  height: 100vh;
+  border-right: 1px solid #e3eaf2;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* --- Sidebar Content --- */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 32px 24px 32px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2196f3;
+}
+
+.sidebar-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: url('data:image/svg+xml;utf8,<svg fill="%232196f3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l7.5 3.27v7.1l-7.5 3.27-7.5-3.27v-7.1L12 4.18z"/></svg>') no-repeat center/contain;
+  display: inline-block;
+}
+
+.sidebar-logo-text {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2196f3;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.sidebar nav {
+    flex-grow: 1; /* Pushes the bottom content down */
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar nav ul li a {
+  color: #222;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 10px 32px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar nav ul li a.active, .sidebar nav ul li a:hover {
+  background: #e3f1ff;
+  color: #2196f3;
+}
+
+.sidebar-bottom {
+  padding: 24px 0 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid #e3eaf2;
+}
+
+.sidebar-section + .sidebar-section {
+    border-top: 1px solid #e3eaf2;
+    padding-top: 8px;
+    margin-top: 8px;
+}
+
+.sidebar-bottom-link {
+  color: #222;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 10px 32px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-bottom-link:hover, .sidebar-bottom-link.active, .sidebar-logout:hover {
+  background: #e3f1ff;
+  color: #2196f3;
+}
+
+.sidebar-logout {
+  text-align: left;
+}
+
+/* --- Sidebar Responsiveness --- */
+@media (max-width: 900px) {
+  .sidebar-logo-text, .sidebar nav ul li a, .sidebar-bottom-link {
+    display: none;
+  }
+  .sidebar-logo {
+    justify-content: center;
+    padding: 32px 0 24px 0;
+  }
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    border-top: 1px solid #e3eaf2;
+}
+
+.sidebar-user-avatar {
+    width: 40px;
+    height: 40px;
+    background: #e3eaf2;
+    color: #2196f3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sidebar-user-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #222;
+}
+
+.sidebar-user-email {
+    font-size: 0.92rem;
+    color: #888;
+}

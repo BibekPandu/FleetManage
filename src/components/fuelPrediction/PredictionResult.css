@@ -1,0 +1,60 @@
+.prediction-result {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #eef8ff;
+}
+
+.prediction-result .result-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #007bff;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.prediction-result h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.prompt-code-block {
+  background-color: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 15px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Courier New', Courier, monospace;
+  color: var(--text-secondary);
+}
+
+/* --- Skeleton Loader --- */
+.skeleton-line {
+  height: 20px;
+  background-color: var(--background-primary);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-line:last-child {
+  margin-bottom: 0;
+  width: 70%;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: var(--background-primary);
+  }
+  50% {
+    background-color: var(--border-color);
+  }
+  100% {
+    background-color: var(--background-primary);
+  }
+}
+

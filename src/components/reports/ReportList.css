@@ -1,0 +1,16 @@
+.report-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.report-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.report-list li:hover {
+  background-color: #f0f0f0;
+}

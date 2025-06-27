@@ -1,0 +1,60 @@
+.prediction-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.prediction-form .form-group {
+    margin-bottom: 15px;
+}
+
+.prediction-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.prediction-form input,
+.prediction-form select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.prediction-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.prediction-form button:hover {
+    background-color: #0056b3;
+}
+
+.prediction-form .form-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.prediction-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* For smaller screens, stack the grid items */
+@media (max-width: 768px) {
+  .prediction-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -1,0 +1,9 @@
+/* Styles for the settings list, if applicable. */
+.settings-list ul {
+  list-style: none;
+  padding: 0;
+}
+.settings-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
