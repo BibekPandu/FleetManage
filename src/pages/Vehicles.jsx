@@ -11,7 +11,19 @@ const Vehicles = () => {
   const { user } = useAuth();
   const canModify = user?.role === 'admin' || user?.role === 'manager';
 
-  const { vehicles, addVehicle, editVehicle, deleteVehicle } = useVehicles();
+  // Debug: Check if user is logged in
+  console.log('👤 Current user:', user);
+  console.log('🔑 Token in localStorage:', localStorage.getItem('fleetfox_token') ? 'Exists' : 'Missing');
+
+  const { 
+    vehicles, 
+    loading, 
+    error, 
+    createVehicle, 
+    updateVehicle, 
+    deleteVehicle,
+    clearError 
+  } = useVehicles();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -28,13 +40,50 @@ const Vehicles = () => {
     setShowDeleteDialog(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (selectedVehicle) {
-      deleteVehicle(selectedVehicle.id);
-      setShowDeleteDialog(false);
-      setSelectedVehicle(null);
+  const handleAddVehicle = async (vehicleData) => {
+    try {
+      await createVehicle(vehicleData);
+      setShowAddDialog(false);
+    } catch (error) {
+      // Error is handled by the context
+      console.error('Failed to add vehicle:', error);
     }
   };
+
+  const handleEditVehicle = async (vehicleData) => {
+    try {
+      await updateVehicle(selectedVehicle.id, vehicleData);
+      setShowEditDialog(false);
+      setSelectedVehicle(null);
+    } catch (error) {
+      // Error is handled by the context
+      console.error('Failed to edit vehicle:', error);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedVehicle) {
+      try {
+        await deleteVehicle(selectedVehicle.id);
+        setShowDeleteDialog(false);
+        setSelectedVehicle(null);
+      } catch (error) {
+        // Error is handled by the context
+        console.error('Failed to delete vehicle:', error);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="vehicles">
+        <div className="page-header">
+          <h1>Vehicles</h1>
+        </div>
+        <div className="loading">Loading vehicles...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="vehicles">
@@ -42,14 +91,29 @@ const Vehicles = () => {
         <h1>Vehicles</h1>
         {canModify && <button onClick={() => setShowAddDialog(true)}>Add Vehicle</button>}
       </div>
-      <VehicleList vehicles={vehicles} onEdit={openEditDialog} onDelete={openDeleteDialog} canModify={canModify} />
+      
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={clearError}>×</button>
+        </div>
+      )}
+      
+      <VehicleList 
+        vehicles={vehicles} 
+        onEdit={openEditDialog} 
+        onDelete={openDeleteDialog} 
+        canModify={canModify} 
+      />
+      
       {canModify && showAddDialog && (
         <AddVehicleDialog
           show={showAddDialog}
           onClose={() => setShowAddDialog(false)}
-          onAddVehicle={addVehicle}
+          onAddVehicle={handleAddVehicle}
         />
       )}
+      
       {canModify && selectedVehicle && (
         <EditVehicleDialog
           show={showEditDialog}
@@ -58,9 +122,10 @@ const Vehicles = () => {
             setSelectedVehicle(null);
           }}
           vehicle={selectedVehicle}
-          onEditVehicle={editVehicle}
+          onEditVehicle={handleEditVehicle}
         />
       )}
+      
       {canModify && (
         <ConfirmationDialog
           show={showDeleteDialog}

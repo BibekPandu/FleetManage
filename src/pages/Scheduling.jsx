@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './Scheduling.css';
 import ScheduleList from '../components/scheduling/ScheduleList';
 import AddScheduleDialog from '../components/scheduling/AddScheduleDialog';
 import EditScheduleDialog from '../components/scheduling/EditScheduleDialog';
@@ -10,7 +9,15 @@ import useAuth from '../hooks/useAuth';
 const Scheduling = () => {
   const { user } = useAuth();
   const canModify = user?.role === 'admin' || user?.role === 'manager';
-  const { schedules, addSchedule, editSchedule, deleteSchedule } = useSchedules();
+  const { 
+    schedules, 
+    loading, 
+    error, 
+    addSchedule, 
+    updateSchedule, 
+    deleteSchedule, 
+    clearError 
+  } = useSchedules();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -27,13 +34,50 @@ const Scheduling = () => {
     setShowDeleteDialog(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (selectedSchedule) {
-      deleteSchedule(selectedSchedule.id);
-      setShowDeleteDialog(false);
-      setSelectedSchedule(null);
+  const handleAddSchedule = async (scheduleData) => {
+    try {
+      await addSchedule(scheduleData);
+      setShowAddDialog(false);
+    } catch (error) {
+      // Error is handled by the context
+      console.error('Failed to add schedule:', error);
     }
   };
+
+  const handleEditSchedule = async (scheduleData) => {
+    try {
+      await updateSchedule(selectedSchedule.id, scheduleData);
+      setShowEditDialog(false);
+      setSelectedSchedule(null);
+    } catch (error) {
+      // Error is handled by the context
+      console.error('Failed to edit schedule:', error);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedSchedule) {
+      try {
+        await deleteSchedule(selectedSchedule.id);
+        setShowDeleteDialog(false);
+        setSelectedSchedule(null);
+      } catch (error) {
+        // Error is handled by the context
+        console.error('Failed to delete schedule:', error);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="scheduling">
+        <div className="page-header">
+          <h1>Scheduling</h1>
+        </div>
+        <div className="loading">Loading schedules...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="scheduling">
@@ -41,14 +85,29 @@ const Scheduling = () => {
         <h1>Scheduling</h1>
         {canModify && <button onClick={() => setShowAddDialog(true)}>Add Schedule</button>}
       </div>
-      <ScheduleList schedules={schedules} onEdit={openEditDialog} onDelete={openDeleteDialog} canModify={canModify} />
-      {canModify && (
+
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={clearError}>×</button>
+        </div>
+      )}
+
+      <ScheduleList 
+        schedules={schedules} 
+        onEdit={openEditDialog} 
+        onDelete={openDeleteDialog} 
+        canModify={canModify} 
+      />
+
+      {canModify && showAddDialog && (
         <AddScheduleDialog
           show={showAddDialog}
           onClose={() => setShowAddDialog(false)}
-          onAddSchedule={addSchedule}
+          onAddSchedule={handleAddSchedule}
         />
       )}
+
       {canModify && selectedSchedule && (
         <EditScheduleDialog
           show={showEditDialog}
@@ -57,9 +116,10 @@ const Scheduling = () => {
             setSelectedSchedule(null);
           }}
           schedule={selectedSchedule}
-          onEditSchedule={editSchedule}
+          onEditSchedule={handleEditSchedule}
         />
       )}
+
       {canModify && (
         <ConfirmationDialog
           show={showDeleteDialog}
