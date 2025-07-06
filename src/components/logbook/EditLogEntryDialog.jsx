@@ -1,23 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import '../common/Dialog.css';
-import '../common/Form.css';
-import './EditLogEntryDialog.css';
+import React, { useState, useEffect } from "react";
+import Dialog from "../common/Dialog";
+import "../common/Dialog.css";
+import "../common/Form.css";
+import "./EditLogEntryDialog.css";
 
 const EditLogEntryDialog = ({ show, onClose, entry, onEditEntry }) => {
   const [formData, setFormData] = useState({
-    date: '',
-    vehicle: '',
-    driver: '',
-    description: '',
+    date: "",
+    vehicle: "",
+    driver: "",
+    description: "",
   });
 
   useEffect(() => {
     if (entry) {
       setFormData({
-        date: entry.date,
-        vehicle: entry.vehicle,
-        driver: entry.driver,
-        description: entry.description,
+        date: entry.date || "",
+        vehicle: entry.vehicle || "",
+        driver: entry.driver || "",
+        description: entry.description || "",
       });
     }
   }, [entry]);
@@ -29,42 +30,55 @@ const EditLogEntryDialog = ({ show, onClose, entry, onEditEntry }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onEditEntry({ ...entry, ...formData });
+    onEditEntry(formData);
     onClose();
   };
-  
-  if (!show) {
-    return null;
-  }
 
   return (
-    <div className="dialog-overlay" onClick={onClose}>
-      <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
-        <form onSubmit={handleSubmit} className="settings-section">
-          <h2>Edit Log Entry</h2>
-          <div className="form-group">
-            <label htmlFor="date">Date</label>
-            <input id="date" name="date" type="date" value={formData.date} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="vehicle">Vehicle</label>
-            <input id="vehicle" name="vehicle" type="text" value={formData.vehicle} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="driver">Driver</label>
-            <input id="driver" name="driver" type="text" value={formData.driver} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea id="description" name="description" value={formData.description} onChange={handleChange} required />
-          </div>
-          <div className="dialog-actions">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="form-button">Save Changes</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Dialog show={show} onClose={onClose}>
+      <h2>Edit Log Entry</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Date</label>
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Vehicle</label>
+          <input
+            type="text"
+            name="vehicle"
+            value={formData.vehicle}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Driver</label>
+          <input
+            type="text"
+            name="driver"
+            value={formData.driver}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Description</label>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+          />
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
+    </Dialog>
   );
 };
 
