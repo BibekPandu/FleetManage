@@ -1,34 +1,190 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import useAuth from "../hooks/useAuth";
 
 const StaffContext = createContext();
 
-export const StaffProvider = ({ children }) => {
-  const [staff, setStaff] = useState([
-    { id: 1, name: 'John Doe', role: 'Driver', status: 'Active' },
-    { id: 2, name: 'Peter Jones', role: 'Driver', status: 'Inactive' },
-  ]);
-
-  const addStaff = (newStaff) => {
-    setStaff([...staff, { ...newStaff, id: staff.length + 1 }]);
-  };
-
-  const editStaff = (updatedStaff) => {
-    setStaff(
-      staff.map((s) => (s.id === updatedStaff.id ? updatedStaff : s))
-    );
-  };
-
-  const deleteStaff = (staffId) => {
-    setStaff(staff.filter((s) => s.id !== staffId));
-  };
-
-  const value = { staff, addStaff, editStaff, deleteStaff };
-
-  return (
-    <StaffContext.Provider value={value}>
-      {children}
-    </StaffContext.Provider>
-  );
+export const useStaff = () => {
+  const context = useContext(StaffContext);
+  if (!context) {
+    throw new Error("useStaff must be used within a StaffProvider");
+  }
+  return context;
 };
 
-export const useStaff = () => useContext(StaffContext);
+export const StaffProvider = ({ children }) => {
+  const [staff, setStaff] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const token = localStorage.getItem("fleetfox_token");
+  const { isAuthenticated } = useAuth();
+
+  const fetchStaff = async () => {
+    if (!isAuthenticated) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/staff", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch staff");
+      }
+
+      const data = await response.json();
+      setStaff(data.staff || []);
+    } catch (err) {
+      console.error("Error fetching staff:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createStaff = async (staffData) => {
+    console.log("DB  POST", staffData);
+    if (!token) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/staff", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(staffData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add staff");
+      }
+
+      const data = await response.json();
+      setStaff((prev) => [data.staff, ...prev]);
+      return data.staff;
+    } catch (err) {
+      console.error("Error adding staff:", err);
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStaff = async (id, staffData) => {
+    if (!token) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/staff/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(staffData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update staff");
+      }
+
+      const data = await response.json();
+      setStaff((prev) => prev.map((s) => (s.id === id ? data.staff : s)));
+      return data.staff;
+    } catch (err) {
+      console.error("Error updating staff:", err);
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteStaff = async (id) => {
+    if (!token) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/staff/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete staff");
+      }
+
+      setStaff((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error("Error deleting staff:", err);
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStaffById = async (id) => {
+    if (!token) return null;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/staff/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch staff member");
+      }
+
+      const data = await response.json();
+      return data.staff;
+    } catch (err) {
+      console.error("Error fetching staff member:", err);
+      setError(err.message);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchStaff();
+    }
+  }, [token]);
+
+  const value = {
+    staff,
+    loading,
+    error,
+    fetchStaff,
+    createStaff,
+    updateStaff,
+    deleteStaff,
+    getStaffById,
+  };
+
+  return (
+    <StaffContext.Provider value={value}>{children}</StaffContext.Provider>
+  );
+};

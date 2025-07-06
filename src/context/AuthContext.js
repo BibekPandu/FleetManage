@@ -2,79 +2,144 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
-const DEFAULT_ADMIN = {
-  id: 0,
-  name: 'Admin',
-  email: 'admin@fleetfox.com',
-  password: 'admin123',
-  role: 'admin',
-};
+// API base URL
+const API_BASE_URL = 'http://localhost:5000/api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  // This simulates our user database.
-  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [shouldRedirectToLogin, setShouldRedirectToLogin] = useState(false);
 
   // Load user from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('fleetfox_user');
-    if (storedUser) {
+    const token = localStorage.getItem('fleetfox_token');
+    
+    if (storedUser && token) {
       setUser(JSON.parse(storedUser));
+      // Verify token with backend
+      verifyToken(token);
     }
   }, []);
 
-  const register = (userData) => {
-    if (userData.role === 'admin') {
-      throw new Error('Cannot register as admin.');
+  // Verify JWT token with backend
+  const verifyToken = async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        // Token is invalid, clear local storage
+        localStorage.removeItem('fleetfox_user');
+        localStorage.removeItem('fleetfox_token');
+        setUser(null);
+        return;
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      localStorage.setItem('fleetfox_user', JSON.stringify(data.user));
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      // Clear invalid data
+      localStorage.removeItem('fleetfox_user');
+      localStorage.removeItem('fleetfox_token');
+      setUser(null);
     }
-    const userExists = users.find(u => u.email === userData.email);
-    if (userExists) {
-      throw new Error('A user with this email already exists.');
-    }
-    const newUser = { ...userData, id: users.length + 1 };
-    setUsers([...users, newUser]);
-    // Set flag to redirect to login instead of auto-login
-    setShouldRedirectToLogin(true);
-    return newUser;
   };
 
-  const login = (credentials) => {
-    // Check for default admin login
-    if (
-      credentials.email === DEFAULT_ADMIN.email &&
-      credentials.password === DEFAULT_ADMIN.password &&
-      credentials.role === DEFAULT_ADMIN.role
-    ) {
-      setUser(DEFAULT_ADMIN);
-      localStorage.setItem('fleetfox_user', JSON.stringify(DEFAULT_ADMIN));
-      setShouldRedirectToLogin(false);
-      return DEFAULT_ADMIN;
-    }
-    const foundUser = users.find(u => u.email === credentials.email);
-
-    if (!foundUser) {
-      throw new Error('Login failed: No user found with this email.');
-    }
-
-    if (foundUser.password !== credentials.password) {
-      throw new Error('Login failed: Incorrect password.');
-    }
+  const register = async (userData) => {
+    setLoading(true);
+    setError(null);
     
-    if (foundUser.role !== credentials.role) {
-      throw new Error(`Login failed: Credentials are valid, but not for the '${credentials.role}' role.`);
-    }
+    console.log('🔐 Registration attempt with data:', userData);
+    
+    try {
+      if (userData.role === 'admin') {
+        throw new Error('Cannot register as admin.');
+      }
 
-    // If all checks pass, set the user and clear redirect flag
-    setUser(foundUser);
-    localStorage.setItem('fleetfox_user', JSON.stringify(foundUser));
-    setShouldRedirectToLogin(false);
-    return foundUser;
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+
+      const data = await response.json();
+      console.log('📡 Registration response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      console.log('✅ Registration successful for user:', userData.username);
+      
+      // Set flag to redirect to login instead of auto-login
+      setShouldRedirectToLogin(true);
+      return data.user;
+    } catch (error) {
+      console.error('❌ Registration error:', error);
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (credentials) => {
+    setLoading(true);
+    setError(null);
+    
+    console.log('🔍 Login attempt with credentials:', credentials);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password
+        })
+      });
+
+      const data = await response.json();
+      console.log('📡 Login response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      console.log('✅ Login successful for user:', credentials.username);
+
+      // Store user and token
+      setUser(data.user);
+      localStorage.setItem('fleetfox_user', JSON.stringify(data.user));
+      localStorage.setItem('fleetfox_token', data.token);
+      setShouldRedirectToLogin(false);
+      return data.user;
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
     setUser(null);
+    setError(null);
     localStorage.removeItem('fleetfox_user');
+    localStorage.removeItem('fleetfox_token');
   };
 
   const isAuthenticated = () => {
@@ -85,16 +150,22 @@ export const AuthProvider = ({ children }) => {
     setShouldRedirectToLogin(false);
   };
 
+  const clearError = () => {
+    setError(null);
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
-      users, 
       login, 
       logout, 
       register, 
       isAuthenticated,
       shouldRedirectToLogin,
-      clearRedirectFlag
+      clearRedirectFlag,
+      loading,
+      error,
+      clearError
     }}>
       {children}
     </AuthContext.Provider>

@@ -1,36 +1,230 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
-const VehiclesContext = createContext();
+const VehiclesContext = createContext(null);
+
+const API_BASE_URL = 'http://localhost:5000/api';
 
 export const VehiclesProvider = ({ children }) => {
-  const [vehicles, setVehicles] = useState([
-    { id: 1, make: 'Ford', model: 'Transit', year: 2021, vin: '12345XYZ' },
-    { id: 2, make: 'Mercedes-Benz', model: 'Sprinter', year: 2022, vin: '67890ABC' },
-  ]);
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [stats, setStats] = useState(null);
+  const { user } = useAuth();
 
-  const addVehicle = (newVehicle) => {
-    setVehicles([...vehicles, { ...newVehicle, id: vehicles.length + 1 }]);
+  // Get auth token
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('fleetfox_token');
+    console.log('🔑 Token from localStorage:', token ? 'Token exists' : 'No token found');
+    
+    if (!token) {
+      console.error('❌ No authentication token found in localStorage');
+      throw new Error('Authentication token not found. Please log in again.');
+    }
+    
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
   };
 
-  const editVehicle = (updatedVehicle) => {
-    setVehicles(
-      vehicles.map((vehicle) =>
-        vehicle.id === updatedVehicle.id ? updatedVehicle : vehicle
-      )
-    );
+  // Fetch all vehicles
+  const fetchVehicles = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/vehicles`, {
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch vehicles');
+      }
+
+      const data = await response.json();
+      setVehicles(data.vehicles);
+    } catch (error) {
+      console.error('Error fetching vehicles:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteVehicle = (vehicleId) => {
-    setVehicles(vehicles.filter((vehicle) => vehicle.id !== vehicleId));
+  // Fetch vehicle statistics
+  const fetchStats = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/vehicles/stats/overview`, {
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch vehicle statistics');
+      }
+
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error('Error fetching vehicle stats:', error);
+    }
   };
 
-  const value = { vehicles, addVehicle, editVehicle, deleteVehicle };
+  // Create new vehicle
+  const createVehicle = async (vehicleData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/vehicles`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(vehicleData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create vehicle');
+      }
+
+      // Add new vehicle to the list
+      setVehicles(prevVehicles => [data.vehicle, ...prevVehicles]);
+      
+      // Refresh stats
+      fetchStats();
+      
+      return data.vehicle;
+    } catch (error) {
+      console.error('Error creating vehicle:', error);
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update vehicle
+  const updateVehicle = async (id, vehicleData) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(vehicleData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update vehicle');
+      }
+
+      // Update vehicle in the list
+      setVehicles(prevVehicles => 
+        prevVehicles.map(vehicle => 
+          vehicle.id === id ? data.vehicle : vehicle
+        )
+      );
+      
+      return data.vehicle;
+    } catch (error) {
+      console.error('Error updating vehicle:', error);
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete vehicle
+  const deleteVehicle = async (id) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to delete vehicle');
+      }
+
+      // Remove vehicle from the list
+      setVehicles(prevVehicles => 
+        prevVehicles.filter(vehicle => vehicle.id !== id)
+      );
+      
+      // Refresh stats
+      fetchStats();
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get single vehicle
+  const getVehicle = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
+        headers: getAuthHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch vehicle');
+      }
+
+      const data = await response.json();
+      return data.vehicle;
+    } catch (error) {
+      console.error('Error fetching vehicle:', error);
+      throw error;
+    }
+  };
+
+  // Load vehicles and stats when component mounts
+  useEffect(() => {
+    if (user) {
+      fetchVehicles();
+      fetchStats();
+    }
+  }, [user]);
+
+  const clearError = () => {
+    setError(null);
+  };
 
   return (
-    <VehiclesContext.Provider value={value}>
+    <VehiclesContext.Provider value={{
+      vehicles,
+      loading,
+      error,
+      stats,
+      fetchVehicles,
+      createVehicle,
+      updateVehicle,
+      deleteVehicle,
+      getVehicle,
+      fetchStats,
+      clearError
+    }}>
       {children}
     </VehiclesContext.Provider>
   );
 };
 
-export const useVehicles = () => useContext(VehiclesContext);
+export const useVehicles = () => {
+  const context = useContext(VehiclesContext);
+  if (!context) {
+    throw new Error('useVehicles must be used within a VehiclesProvider');
+  }
+  return context;
+};
