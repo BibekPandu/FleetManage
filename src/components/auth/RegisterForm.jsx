@@ -6,17 +6,17 @@ const validateEmail = (email) => {
 };
 
 const RegisterForm = ({ onRegister }) => {
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user'); // Default role
+  const [role, setRole] = useState('driver'); // Default role
   const [errors, setErrors] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
-    if (!name) newErrors.name = 'Full name is required.';
-    else if (name.length < 3) newErrors.name = 'Name must be at least 3 characters.';
+    if (!username) newErrors.username = 'Username is required.';
+    else if (username.length < 3) newErrors.username = 'Username must be at least 3 characters.';
     if (!email) newErrors.email = 'Email is required.';
     else if (!validateEmail(email)) newErrors.email = 'Enter a valid email.';
     if (!password) newErrors.password = 'Password is required.';
@@ -24,7 +24,7 @@ const RegisterForm = ({ onRegister }) => {
     if (!role) newErrors.role = 'Role is required.';
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
-      onRegister({ name, email, password, role });
+      onRegister({ username, email, password, role });
     }
   };
 
@@ -34,14 +34,14 @@ const RegisterForm = ({ onRegister }) => {
       <form onSubmit={handleSubmit} noValidate>
         <h2>Create Account</h2>
         <div className="form-group">
-          <label>Full Name</label>
+          <label>Username</label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoComplete="name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
           />
-          {errors.name && <div className="form-error">{errors.name}</div>}
+          {errors.username && <div className="form-error">{errors.username}</div>}
         </div>
         <div className="form-group">
           <label>Email</label>
@@ -49,7 +49,7 @@ const RegisterForm = ({ onRegister }) => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            autoComplete="username"
+            autoComplete="email"
           />
           {errors.email && <div className="form-error">{errors.email}</div>}
         </div>
@@ -66,7 +66,7 @@ const RegisterForm = ({ onRegister }) => {
         <div className="form-group">
           <label>Role</label>
           <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="user">User</option>
+            <option value="driver">Driver</option>
             <option value="manager">Manager</option>
           </select>
           {errors.role && <div className="form-error">{errors.role}</div>}

@@ -1,27 +1,21 @@
 import React, { useState } from 'react';
 import '../common/Form.css';
 
-const validateEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
-
 const LoginForm = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('driver');
   const [errors, setErrors] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
-    if (!email) newErrors.email = 'Email is required.';
-    else if (!validateEmail(email)) newErrors.email = 'Enter a valid email.';
+    if (!username) newErrors.username = 'Username is required.';
     if (!password) newErrors.password = 'Password is required.';
-    else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters.';
     if (!role) newErrors.role = 'Role is required.';
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
-      onLogin({ email, password, role });
+      onLogin({ username, password, role });
     }
   };
 
@@ -31,14 +25,15 @@ const LoginForm = ({ onLogin }) => {
       <form onSubmit={handleSubmit} noValidate>
         <h2>Login</h2>
         <div className="form-group">
-          <label>Email</label>
+          <label>Username</label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
+            placeholder="Enter your username"
           />
-          {errors.email && <div className="form-error">{errors.email}</div>}
+          {errors.username && <div className="form-error">{errors.username}</div>}
         </div>
         <div className="form-group">
           <label>Password</label>
@@ -47,13 +42,14 @@ const LoginForm = ({ onLogin }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            placeholder="Enter your password"
           />
           {errors.password && <div className="form-error">{errors.password}</div>}
         </div>
         <div className="form-group">
           <label>Role</label>
           <div className="role-radio-group">
-            <label><input type="radio" name="role" value="user" checked={role === 'user'} onChange={() => setRole('user')} /> User</label>
+            <label><input type="radio" name="role" value="driver" checked={role === 'driver'} onChange={() => setRole('driver')} /> Driver</label>
             <label><input type="radio" name="role" value="manager" checked={role === 'manager'} onChange={() => setRole('manager')} /> Manager</label>
             <label><input type="radio" name="role" value="admin" checked={role === 'admin'} onChange={() => setRole('admin')} /> Admin</label>
           </div>
