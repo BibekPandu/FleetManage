@@ -3,6 +3,31 @@ import '../common/Table.css';
 import Badge from '../common/Badge';
 
 const ScheduleList = ({ schedules, onEdit, onDelete, canModify }) => {
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      'scheduled': 'scheduled',
+      'in_progress': 'in-progress',
+      'completed': 'completed',
+      'cancelled': 'cancelled'
+    };
+    return statusMap[status] || 'scheduled';
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString();
+  };
+
+  if (schedules.length === 0) {
+    return (
+      <div className="table-container">
+        <div className="empty-state">
+          <p>No schedules found. Add your first schedule to get started!</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="table-container">
       <table>
@@ -21,12 +46,14 @@ const ScheduleList = ({ schedules, onEdit, onDelete, canModify }) => {
           {schedules.map((schedule) => (
             <tr key={schedule.id}>
               <td>{schedule.id}</td>
-              <td>{schedule.date}</td>
+              <td>{formatDate(schedule.date)}</td>
               <td>{schedule.vehicle}</td>
               <td>{schedule.driver}</td>
               <td>{schedule.task}</td>
               <td>
-                <Badge type={schedule.status}>{schedule.status}</Badge>
+                <Badge type={getStatusBadge(schedule.status)}>
+                  {schedule.status.replace('_', ' ')}
+                </Badge>
               </td>
               {canModify && (
                 <td>
