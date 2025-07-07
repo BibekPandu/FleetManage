@@ -1,6 +1,6 @@
-import React from 'react';
-import '../common/Table.css';
-import Badge from '../common/Badge';
+import React from "react";
+import "../common/Table.css";
+import Badge from "../common/Badge";
 
 const StaffList = ({ staff, onEdit, onDelete, canModify }) => {
   return (
@@ -26,8 +26,18 @@ const StaffList = ({ staff, onEdit, onDelete, canModify }) => {
               </td>
               {canModify && (
                 <td>
-                  <button className="btn-edit" onClick={() => onEdit(staffMember)}>Edit</button>
-                  <button className="btn-delete" onClick={() => onDelete(staffMember)}>Delete</button>
+                  <button
+                    className="btn-edit"
+                    onClick={() => onEdit(staffMember)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => onDelete(staffMember)}
+                  >
+                    Delete
+                  </button>
                 </td>
               )}
             </tr>
