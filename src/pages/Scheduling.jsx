@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import ScheduleList from '../components/scheduling/ScheduleList';
-import AddScheduleDialog from '../components/scheduling/AddScheduleDialog';
-import EditScheduleDialog from '../components/scheduling/EditScheduleDialog';
-import ConfirmationDialog from '../components/common/ConfirmationDialog';
-import { useSchedules } from '../context/SchedulesContext';
-import useAuth from '../hooks/useAuth';
+import React, { useState } from "react";
+import ScheduleList from "../components/scheduling/ScheduleList";
+import AddScheduleDialog from "../components/scheduling/AddScheduleDialog";
+import EditScheduleDialog from "../components/scheduling/EditScheduleDialog";
+import ConfirmationDialog from "../components/common/ConfirmationDialog";
+import { useSchedules } from "../context/SchedulesContext";
+import useAuth from "../hooks/useAuth";
 
 const Scheduling = () => {
   const { user } = useAuth();
-  const canModify = user?.role === 'admin' || user?.role === 'manager';
-  const { 
-    schedules, 
-    loading, 
-    error, 
-    addSchedule, 
-    updateSchedule, 
-    deleteSchedule, 
-    clearError 
+  const canModify = user?.role === "admin" || user?.role === "manager";
+  const {
+    schedules,
+    loading,
+    error,
+    addSchedule,
+    updateSchedule,
+    deleteSchedule,
+    clearError,
   } = useSchedules();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -40,30 +40,30 @@ const Scheduling = () => {
       setShowAddDialog(false);
     } catch (error) {
       // Error is handled by the context
-      console.error('Failed to add schedule:', error);
+      console.error("Failed to add schedule:", error);
     }
   };
 
-  const handleEditSchedule = async (scheduleData) => {
+  const handleEditSchedule = async (id, formData) => {
     try {
-      await updateSchedule(selectedSchedule.id, scheduleData);
+      await updateSchedule(id, formData);
       setShowEditDialog(false);
       setSelectedSchedule(null);
     } catch (error) {
       // Error is handled by the context
-      console.error('Failed to edit schedule:', error);
+      console.error("Failed to edit schedule:", error);
     }
   };
 
   const handleConfirmDelete = async () => {
     if (selectedSchedule) {
       try {
-        await deleteSchedule(selectedSchedule.id);
+        await deleteSchedule(selectedSchedule);
         setShowDeleteDialog(false);
         setSelectedSchedule(null);
       } catch (error) {
         // Error is handled by the context
-        console.error('Failed to delete schedule:', error);
+        console.error("Failed to delete schedule:", error);
       }
     }
   };
@@ -83,7 +83,9 @@ const Scheduling = () => {
     <div className="scheduling">
       <div className="page-header">
         <h1>Scheduling</h1>
-        {canModify && <button onClick={() => setShowAddDialog(true)}>Add Schedule</button>}
+        {canModify && (
+          <button onClick={() => setShowAddDialog(true)}>Add Schedule</button>
+        )}
       </div>
 
       {error && (
@@ -93,11 +95,11 @@ const Scheduling = () => {
         </div>
       )}
 
-      <ScheduleList 
-        schedules={schedules} 
-        onEdit={openEditDialog} 
-        onDelete={openDeleteDialog} 
-        canModify={canModify} 
+      <ScheduleList
+        schedules={schedules}
+        onEdit={openEditDialog}
+        onDelete={openDeleteDialog}
+        canModify={canModify}
       />
 
       {canModify && showAddDialog && (

@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import '../common/Dialog.css';
-import '../common/Form.css';
-import './AddScheduleDialog.css';
+import React, { useState } from "react";
+import "../common/Dialog.css";
+import "../common/Form.css";
+import "./AddScheduleDialog.css";
+import { useSchedules } from "../../context/SchedulesContext";
 
 const AddScheduleDialog = ({ show, onClose, onAddSchedule }) => {
   const [formData, setFormData] = useState({
-    date: '',
-    vehicle: '',
-    driver: '',
-    task: '',
-    status: 'scheduled'
+    date: "",
+    vehicle: "",
+    driver: "",
+    task: "",
+    status: "scheduled",
   });
 
   const [loading, setLoading] = useState(false);
@@ -22,19 +23,23 @@ const AddScheduleDialog = ({ show, onClose, onAddSchedule }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
+    // const token = localStorage.getItem("fleetfox_token"); // 🔑 Add this line
+
     try {
       await onAddSchedule(formData);
+
       // Reset form
       setFormData({
-        date: '',
-        vehicle: '',
-        driver: '',
-        task: '',
-        status: 'scheduled'
+        date: "",
+        vehicle: "",
+        driver: "",
+        task: "",
+        status: "scheduled",
       });
     } catch (error) {
-      // Error is handled by parent
+      console.error("Error adding schedule:", error);
+      alert("Error connecting to server.");
     } finally {
       setLoading(false);
     }
@@ -47,64 +52,64 @@ const AddScheduleDialog = ({ show, onClose, onAddSchedule }) => {
       <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
         <form onSubmit={handleSubmit} className="settings-section">
           <h2>Add Schedule</h2>
-          
+
           <div className="form-group">
             <label htmlFor="date">Date</label>
-            <input 
-              id="date" 
-              name="date" 
-              type="date" 
-              value={formData.date} 
-              onChange={handleChange} 
-              required 
+            <input
+              id="date"
+              name="date"
+              type="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="vehicle">Vehicle</label>
-            <input 
-              id="vehicle" 
-              name="vehicle" 
-              type="text" 
-              value={formData.vehicle} 
-              onChange={handleChange} 
+            <input
+              id="vehicle"
+              name="vehicle"
+              type="text"
+              value={formData.vehicle}
+              onChange={handleChange}
               placeholder="e.g., Truck-001, Van-002"
-              required 
+              required
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="driver">Driver</label>
-            <input 
-              id="driver" 
-              name="driver" 
-              type="text" 
-              value={formData.driver} 
-              onChange={handleChange} 
+            <input
+              id="driver"
+              name="driver"
+              type="text"
+              value={formData.driver}
+              onChange={handleChange}
               placeholder="e.g., John Doe, Jane Smith"
-              required 
+              required
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="task">Task</label>
-            <input 
-              id="task" 
-              name="task" 
-              type="text" 
-              value={formData.task} 
-              onChange={handleChange} 
+            <input
+              id="task"
+              name="task"
+              type="text"
+              value={formData.task}
+              onChange={handleChange}
               placeholder="e.g., Delivery route, Maintenance, Pickup"
-              required 
+              required
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="status">Status</label>
-            <select 
-              id="status" 
-              name="status" 
-              value={formData.status} 
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
               onChange={handleChange}
             >
               <option value="scheduled">Scheduled</option>
@@ -115,20 +120,16 @@ const AddScheduleDialog = ({ show, onClose, onAddSchedule }) => {
           </div>
 
           <div className="dialog-actions">
-            <button 
-              type="button" 
-              className="btn btn-secondary" 
+            <button
+              type="button"
+              className="btn btn-secondary"
               onClick={onClose}
               disabled={loading}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              className="form-button"
-              disabled={loading}
-            >
-              {loading ? 'Adding...' : 'Add Schedule'}
+            <button type="submit" className="form-button" disabled={loading}>
+              {loading ? "Adding..." : "Add Schedule"}
             </button>
           </div>
         </form>

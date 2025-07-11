@@ -1,20 +1,20 @@
-import React from 'react';
-import '../common/Table.css';
-import Badge from '../common/Badge';
+import React from "react";
+import "../common/Table.css";
+import Badge from "../common/Badge";
 
 const ScheduleList = ({ schedules, onEdit, onDelete, canModify }) => {
   const getStatusBadge = (status) => {
     const statusMap = {
-      'scheduled': 'scheduled',
-      'in_progress': 'in-progress',
-      'completed': 'completed',
-      'cancelled': 'cancelled'
+      scheduled: "scheduled",
+      in_progress: "in-progress",
+      completed: "completed",
+      cancelled: "cancelled",
     };
-    return statusMap[status] || 'scheduled';
+    return statusMap[status] || "scheduled";
   };
 
   const formatDate = (date) => {
-    if (!date) return '';
+    if (!date) return "";
     return new Date(date).toLocaleDateString();
   };
 
@@ -52,13 +52,20 @@ const ScheduleList = ({ schedules, onEdit, onDelete, canModify }) => {
               <td>{schedule.task}</td>
               <td>
                 <Badge type={getStatusBadge(schedule.status)}>
-                  {schedule.status.replace('_', ' ')}
+                  {schedule.status.replace("_", " ")}
                 </Badge>
               </td>
               {canModify && (
                 <td>
-                  <button className="btn-edit" onClick={() => onEdit(schedule)}>Edit</button>
-                  <button className="btn-delete" onClick={() => onDelete(schedule)}>Delete</button>
+                  <button className="btn-edit" onClick={() => onEdit(schedule)}>
+                    Edit
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => onDelete(schedule.id)}
+                  >
+                    Delete
+                  </button>
                 </td>
               )}
             </tr>
