@@ -10,8 +10,7 @@ const Logbook = () => {
   const { user } = useAuth();
   const canModify =
     user?.role === "admin" ||
-    user?.role === "manager" ||
-    user?.role === "driver";
+    user?.role === "manager";
 
   // Debug: Check if user is logged in
   // console.log('👤 Current user:', user);

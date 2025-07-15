@@ -24,11 +24,11 @@ const AuthPage = () => {
     }
   }, [shouldRedirectToLogin, clearRedirectFlag]);
 
-  const handleLogin = (credentials) => {
+  const handleLogin = async (credentials) => {
     try {
       setError("");
       setSuccessMessage("");
-      login(credentials);
+      await login(credentials);
       navigate("/");
     } catch (err) {
       setError(err.message);

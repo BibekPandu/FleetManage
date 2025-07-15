@@ -11,6 +11,7 @@ import Reports from './pages/Reports';
 import FuelPrediction from './pages/FuelPrediction';
 import Settings from './pages/Settings';
 import AuthPage from './pages/AuthPage';
+import Expenses from './pages/Expenses';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import useAuth from './hooks/useAuth';
@@ -28,6 +29,7 @@ function App() {
           <Route path="/staff" element={<Staff />} />
           <Route path="/logbook" element={<Logbook />} />
           <Route path="/scheduling" element={<Scheduling />} />
+          <Route path="/expenses" element={<Expenses />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/fuel-prediction" element={<FuelPrediction />} />
           <Route path="/settings" element={<Settings />} />
