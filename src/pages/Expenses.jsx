@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import './Expenses.css';
+import React, { useState } from "react";
+import "./Expenses.css";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
-  const [form, setForm] = useState({ description: '', amount: '', date: '' });
-  const [error, setError] = useState('');
+  const [form, setForm] = useState({ description: "", amount: "", date: "" });
+  const [error, setError] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(false); // For future backend
 
@@ -15,15 +15,15 @@ const Expenses = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.description || !form.amount || !form.date) {
-      setError('All fields are required.');
+      setError("All fields are required.");
       return;
     }
     setExpenses([
       { ...form, amount: parseFloat(form.amount), id: Date.now() },
       ...expenses,
     ]);
-    setForm({ description: '', amount: '', date: '' });
-    setError('');
+    setForm({ description: "", amount: "", date: "" });
+    setError("");
     setShowAdd(false);
   };
 
@@ -43,13 +43,13 @@ const Expenses = () => {
       <div className="page-header">
         <h1>Expenses</h1>
         <button onClick={() => setShowAdd((v) => !v)} className="add-btn">
-          {showAdd ? 'Cancel' : 'Add Expense'}
+          {showAdd ? "Cancel" : "Add Expense"}
         </button>
       </div>
       {error && (
         <div className="error-message">
           {error}
-          <button onClick={() => setError('')}>×</button>
+          <button onClick={() => setError("")}></button>
         </div>
       )}
       {showAdd && (
@@ -76,7 +76,9 @@ const Expenses = () => {
             value={form.date}
             onChange={handleChange}
           />
-          <button type="submit" className="form-button">Save</button>
+          <button type="submit" className="form-button">
+            Save
+          </button>
         </form>
       )}
       <table className="expenses-table">
@@ -90,7 +92,9 @@ const Expenses = () => {
         <tbody>
           {expenses.length === 0 ? (
             <tr>
-              <td colSpan="3" style={{ textAlign: 'center' }}>No expenses yet.</td>
+              <td colSpan="3" style={{ textAlign: "center" }}>
+                No expenses yet.
+              </td>
             </tr>
           ) : (
             expenses.map((exp) => (
@@ -107,4 +111,4 @@ const Expenses = () => {
   );
 };
 
-export default Expenses; 
+export default Expenses;
