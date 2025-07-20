@@ -1,30 +1,61 @@
-import React, { useState } from "react";
-import "./Expenses.css";
+import React, { useState } from 'react';
+import './Expenses.css';
+import { useExpenses } from '../context/ExpensesContext';
+import useAuth from '../hooks/useAuth';
+import ExpensesList from '../components/expences/ExpensesList';
+import AddExpenseDialog from '../components/expences/AddExpenseDialog';
+import EditExpenseDialog from '../components/expences/EditExpenseDialog';
+import ConfirmationDialog from '../components/common/ConfirmationDialog';
 
 const Expenses = () => {
-  const [expenses, setExpenses] = useState([]);
-  const [form, setForm] = useState({ description: "", amount: "", date: "" });
-  const [error, setError] = useState("");
-  const [showAdd, setShowAdd] = useState(false);
-  const [loading, setLoading] = useState(false); // For future backend
+  const { user } = useAuth();
+  const canModify = user?.role === 'admin' || user?.role === 'manager';
+  const { expenses, loading, error, addExpense, updateExpense, deleteExpense, clearError } = useExpenses();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState(null);
+
+  const openEditDialog = (expense) => {
+    setSelectedExpense(expense);
+    setShowEditDialog(true);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.description || !form.amount || !form.date) {
-      setError("All fields are required.");
-      return;
+  const openDeleteDialog = (expense) => {
+    setSelectedExpense(expense);
+    setShowDeleteDialog(true);
+  };
+
+  const handleAddExpense = async (expenseData) => {
+    try {
+      await addExpense(expenseData);
+      setShowAddDialog(false);
+    } catch (error) {
+      // Error is handled by the context
     }
-    setExpenses([
-      { ...form, amount: parseFloat(form.amount), id: Date.now() },
-      ...expenses,
-    ]);
-    setForm({ description: "", amount: "", date: "" });
-    setError("");
-    setShowAdd(false);
+  };
+
+  const handleEditExpense = async (id, formData) => {
+    try {
+      await updateExpense(id, formData);
+      setShowEditDialog(false);
+      setSelectedExpense(null);
+    } catch (error) {
+      // Error is handled by the context
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedExpense) {
+      try {
+        await deleteExpense(selectedExpense.id);
+        setShowDeleteDialog(false);
+        setSelectedExpense(null);
+      } catch (error) {
+        // Error is handled by the context
+      }
+    }
   };
 
   if (loading) {
@@ -42,71 +73,50 @@ const Expenses = () => {
     <div className="expenses">
       <div className="page-header">
         <h1>Expenses</h1>
-        <button onClick={() => setShowAdd((v) => !v)} className="add-btn">
-          {showAdd ? "Cancel" : "Add Expense"}
-        </button>
+        {canModify && <button onClick={() => setShowAddDialog(true)}>Add Expense</button>}
       </div>
       {error && (
         <div className="error-message">
           {error}
-          <button onClick={() => setError("")}></button>
+          <button onClick={clearError}>&times;</button>
         </div>
       )}
-      {showAdd && (
-        <form className="expenses-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="description"
-            placeholder="Description"
-            value={form.description}
-            onChange={handleChange}
-          />
-          <input
-            type="number"
-            name="amount"
-            placeholder="Amount"
-            value={form.amount}
-            onChange={handleChange}
-            min="0"
-            step="0.01"
-          />
-          <input
-            type="date"
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-          />
-          <button type="submit" className="form-button">
-            Save
-          </button>
-        </form>
+      <ExpensesList
+        expenses={expenses}
+        onEdit={openEditDialog}
+        onDelete={openDeleteDialog}
+        canModify={canModify}
+      />
+      {canModify && showAddDialog && (
+        <AddExpenseDialog
+          show={showAddDialog}
+          onClose={() => setShowAddDialog(false)}
+          onAddExpense={handleAddExpense}
+        />
       )}
-      <table className="expenses-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {expenses.length === 0 ? (
-            <tr>
-              <td colSpan="3" style={{ textAlign: "center" }}>
-                No expenses yet.
-              </td>
-            </tr>
-          ) : (
-            expenses.map((exp) => (
-              <tr key={exp.id}>
-                <td>{exp.date}</td>
-                <td>{exp.description}</td>
-                <td>${exp.amount.toFixed(2)}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+      {canModify && selectedExpense && (
+        <EditExpenseDialog
+          show={showEditDialog}
+          onClose={() => {
+            setShowEditDialog(false);
+            setSelectedExpense(null);
+          }}
+          expense={selectedExpense}
+          onEditExpense={handleEditExpense}
+        />
+      )}
+      {canModify && (
+        <ConfirmationDialog
+          show={showDeleteDialog}
+          onClose={() => {
+            setShowDeleteDialog(false);
+            setSelectedExpense(null);
+          }}
+          onConfirm={handleConfirmDelete}
+          title="Confirm Deletion"
+          message={`Are you sure you want to delete this expense? This action cannot be undone.`}
+        />
+      )}
     </div>
   );
 };
