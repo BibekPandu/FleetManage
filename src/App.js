@@ -15,28 +15,31 @@ import Expenses from './pages/Expenses';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import useAuth from './hooks/useAuth';
+import { ExpensesProvider } from './context/ExpensesContext';
 
 function App() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/vehicles" element={<Vehicles />} />
-          <Route path="/staff" element={<Staff />} />
-          <Route path="/logbook" element={<Logbook />} />
-          <Route path="/scheduling" element={<Scheduling />} />
-          <Route path="/expenses" element={<Expenses />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/fuel-prediction" element={<FuelPrediction />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
-        <Route path="*" element={<Navigate to={isAuthenticated() ? "/" : "/auth"} />} />
-      </Routes>
-    </Router>
+    <ExpensesProvider>
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/vehicles" element={<Vehicles />} />
+            <Route path="/staff" element={<Staff />} />
+            <Route path="/logbook" element={<Logbook />} />
+            <Route path="/scheduling" element={<Scheduling />} />
+            <Route path="/expenses" element={<Expenses />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/fuel-prediction" element={<FuelPrediction />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+          <Route path="*" element={<Navigate to={isAuthenticated() ? "/" : "/auth"} />} />
+        </Routes>
+      </Router>
+    </ExpensesProvider>
   );
 }
 

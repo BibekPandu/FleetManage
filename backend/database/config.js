@@ -133,6 +133,21 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Create expenses table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS expenses (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        date DATE NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        category VARCHAR(50) NOT NULL,
+        description TEXT,
+        vehicle_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL
+      )
+    `);
+
     console.log("✅ Database tables created successfully!");
     connection.release();
     return true;
