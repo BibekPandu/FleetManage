@@ -24,6 +24,7 @@ const vehicleRoutes = require('./routes/vehicles');
 const staffRoutes = require('./routes/staff');
 const logbookRoutes = require('./routes/logbook');
 const schedulesRouter = require('./routes/schedules');
+const expencesRouter = require('./routes/expences');
 // const reportRoutes = require('./routes/reports');
 // const fuelPredictionRoutes = require('./routes/fuel-prediction');
 
@@ -33,6 +34,7 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/logbook', logbookRoutes);
 app.use('/api/schedules', schedulesRouter);
+app.use('/api/expences', expencesRouter);
 // app.use('/api/reports', reportRoutes);
 // app.use('/api/fuel-prediction', fuelPredictionRoutes);
 
