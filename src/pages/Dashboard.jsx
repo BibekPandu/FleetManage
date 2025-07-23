@@ -1,36 +1,119 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import './Dashboard.css';
 import DashboardCards from '../components/dashboard/DashboardCards';
 import DashboardCharts from '../components/dashboard/DashboardCharts';
 import DashboardSummary from '../components/dashboard/DashboardSummary';
-
-// Reference data (from fleetfox or static as in the image)
-const cards = [
-  { title: 'Total Vehicles', value: 24, icon: '🚗', change: '+2.1% from last month', changeType: 'positive', description: '' },
-  { title: 'Active Staff', value: 18, icon: '👥', change: '+2.1% from last month', changeType: 'positive', description: '' },
-  { title: 'Fuel Usage (Today)', value: '1,204 L', icon: '⛽', change: '+2.1% from last month', changeType: 'positive', description: '' },
-  { title: 'Schedules (Today)', value: 7, icon: '📅', change: '+2.1% from last month', changeType: 'positive', description: '' },
-];
-
-const barChartData = [
-  { name: 'Mon', value: 1700 },
-  { name: 'Tue', value: 5400 },
-  { name: 'Wed', value: 2900 },
-  { name: 'Thu', value: 4700 },
-  { name: 'Fri', value: 4200 },
-  { name: 'Sat', value: 2300 },
-  { name: 'Sun', value: 4800 },
-];
-
-const summary = [
-  { date: '2023-10-26', time: '14:30', activity: 'Vehicle #123 returned from delivery route', status: 'Completed', icon: '✅' },
-  { date: '2023-10-26', time: '12:15', activity: 'Staff #456 started morning shift', status: 'In Progress', icon: '🔄' },
-  { date: '2023-10-26', time: '10:45', activity: 'Fueling completed for Vehicle #789', status: 'Completed', icon: '✅' },
-  { date: '2023-10-25', time: '16:20', activity: 'Maintenance scheduled for Vehicle #123', status: 'Scheduled', icon: '📅' },
-  { date: '2023-10-25', time: '09:30', activity: 'New driver training completed', status: 'Completed', icon: '✅' },
-];
+import { useVehicles } from '../context/VehiclesContext';
+import { useStaff } from '../context/StaffContext';
+import { useLogbook } from '../context/LogbookContext';
+import { useSchedules } from '../context/SchedulesContext';
+import { useExpenses } from '../context/ExpensesContext';
 
 const Dashboard = () => {
+  const { vehicles } = useVehicles();
+  const { staff } = useStaff();
+  const { schedules } = useSchedules();
+  const { entries: logbookEntries } = useLogbook();
+  const { expenses } = useExpenses();
+
+  // Dashboard cards data
+  const cards = [
+    {
+      title: 'Total Vehicles',
+      value: vehicles.length,
+      icon: '🚗',
+      change: '',
+      changeType: 'neutral',
+      description: '',
+    },
+    {
+      title: 'Active Staff',
+      value: staff.length,
+      icon: '👥',
+      change: '',
+      changeType: 'neutral',
+      description: '',
+    },
+    {
+      title: 'Schedules (Total)',
+      value: schedules.length,
+      icon: '📅',
+      change: '',
+      changeType: 'neutral',
+      description: '',
+    },
+    {
+      title: 'Expenses (Total)',
+      value: expenses.length,
+      icon: '💸',
+      change: '',
+      changeType: 'neutral',
+      description: '',
+    },
+    {
+      title: 'Logbook Entries',
+      value: logbookEntries.length,
+      icon: '📖',
+      change: '',
+      changeType: 'neutral',
+      description: '',
+    },
+  ];
+
+  // Recent activity summary (show latest from each section)
+  const summary = useMemo(() => {
+    const items = [];
+    if (vehicles[0]) {
+      items.push({
+        date: vehicles[0].created_at || '',
+        time: vehicles[0].created_at ? new Date(vehicles[0].created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        activity: `Vehicle added: ${vehicles[0].make} ${vehicles[0].model} (${vehicles[0].license_plate || vehicles[0].vehicle_number || ''})`,
+        status: 'Completed',
+        icon: '🚗',
+      });
+    }
+    if (staff[0]) {
+      items.push({
+        date: staff[0].created_at || '',
+        time: staff[0].created_at ? new Date(staff[0].created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        activity: `Staff added: ${staff[0].username || staff[0].name || ''} (${staff[0].role})`,
+        status: staff[0].status === 'active' ? 'Completed' : 'In Progress',
+        icon: '👥',
+      });
+    }
+    if (schedules[0]) {
+      items.push({
+        date: schedules[0].created_at || schedules[0].date || '',
+        time: schedules[0].created_at ? new Date(schedules[0].created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        activity: `Schedule: ${schedules[0].task || ''} for ${schedules[0].vehicle || ''} (${schedules[0].status})`,
+        status: schedules[0].status ? schedules[0].status.charAt(0).toUpperCase() + schedules[0].status.slice(1) : 'Scheduled',
+        icon: '📅',
+      });
+    }
+    if (logbookEntries[0]) {
+      items.push({
+        date: logbookEntries[0].created_at || logbookEntries[0].date || '',
+        time: logbookEntries[0].created_at ? new Date(logbookEntries[0].created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        activity: `Logbook: ${logbookEntries[0].description || ''} (${logbookEntries[0].vehicle || ''})`,
+        status: 'Completed',
+        icon: '📖',
+      });
+    }
+    if (expenses[0]) {
+      items.push({
+        date: expenses[0].created_at || expenses[0].date || '',
+        time: expenses[0].created_at ? new Date(expenses[0].created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+        activity: `Expense: ${expenses[0].category || ''} - $${expenses[0].amount || ''}`,
+        status: 'Completed',
+        icon: '💸',
+      });
+    }
+    return items;
+  }, [vehicles, staff, schedules, logbookEntries, expenses]);
+
+  // For now, keep the bar chart static or you can add logic to aggregate weekly/monthly data
+  const barChartData = [];
+
   return (
     <>
       <div className="dashboard-cards-row">
