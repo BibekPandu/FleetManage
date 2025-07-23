@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
-import '../common/Form.css';
+import React, { useState } from "react";
+import "../common/Form.css";
 
 const validateEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
 const RegisterForm = ({ onRegister }) => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('driver'); // Default role
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("driver"); // Default role
   const [errors, setErrors] = useState({});
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
-    if (!username) newErrors.username = 'Username is required.';
-    else if (username.length < 3) newErrors.username = 'Username must be at least 3 characters.';
-    if (!email) newErrors.email = 'Email is required.';
-    else if (!validateEmail(email)) newErrors.email = 'Enter a valid email.';
-    if (!password) newErrors.password = 'Password is required.';
-    else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters.';
-    if (!role) newErrors.role = 'Role is required.';
+    if (!username) newErrors.username = "Username is required.";
+    else if (username.length < 3)
+      newErrors.username = "Username must be at least 3 characters.";
+    if (!email) newErrors.email = "Email is required.";
+    else if (!validateEmail(email)) newErrors.email = "Enter a valid email.";
+    if (!password) newErrors.password = "Password is required.";
+    else if (password.length < 6)
+      newErrors.password = "Password must be at least 6 characters.";
+    if (!role) newErrors.role = "Role is required.";
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
       onRegister({ username, email, password, role });
@@ -41,7 +43,9 @@ const RegisterForm = ({ onRegister }) => {
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
           />
-          {errors.username && <div className="form-error">{errors.username}</div>}
+          {errors.username && (
+            <div className="form-error">{errors.username}</div>
+          )}
         </div>
         <div className="form-group">
           <label>Email</label>
@@ -61,7 +65,9 @@ const RegisterForm = ({ onRegister }) => {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
           />
-          {errors.password && <div className="form-error">{errors.password}</div>}
+          {errors.password && (
+            <div className="form-error">{errors.password}</div>
+          )}
         </div>
         <div className="form-group">
           <label>Role</label>
@@ -71,7 +77,9 @@ const RegisterForm = ({ onRegister }) => {
           </select>
           {errors.role && <div className="form-error">{errors.role}</div>}
         </div>
-        <button type="submit" className="form-button">Register</button>
+        <button type="submit" className="form-button">
+          Register
+        </button>
       </form>
     </div>
   );
