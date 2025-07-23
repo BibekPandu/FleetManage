@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { AuthProvider } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
+import { ReportsProvider } from "./context/ReportsContext";
 import { VehiclesProvider } from "./context/VehiclesContext";
 import { StaffProvider } from "./context/StaffContext";
 import { LogbookProvider } from "./context/LogbookContext";
@@ -18,9 +18,9 @@ root.render(
         <StaffProvider>
           <LogbookProvider>
             <SchedulesProvider>
-              <ThemeProvider>
+              <ReportsProvider>
                 <App />
-              </ThemeProvider>
+              </ReportsProvider>
             </SchedulesProvider>
           </LogbookProvider>
         </StaffProvider>
