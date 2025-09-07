@@ -1,17 +1,19 @@
-import React from 'react';
-import '../common/Table.css';
-import './VehicleList.css';
+import React from "react";
+import "../../styles/Table.css";
+import "./VehicleList.css";
 
 const VehicleList = ({ vehicles, onEdit, onDelete, canModify }) => {
   const getStatusBadge = (status) => {
     const statusClasses = {
-      active: 'status-active',
-      maintenance: 'status-maintenance',
-      inactive: 'status-inactive'
+      active: "status-active",
+      maintenance: "status-maintenance",
+      inactive: "status-inactive",
     };
-    
+
     return (
-      <span className={`status-badge ${statusClasses[status] || 'status-inactive'}`}>
+      <span
+        className={`status-badge ${statusClasses[status] || "status-inactive"}`}
+      >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
@@ -19,12 +21,12 @@ const VehicleList = ({ vehicles, onEdit, onDelete, canModify }) => {
 
   const getFuelTypeLabel = (fuelType) => {
     const fuelLabels = {
-      petrol: 'Petrol',
-      diesel: 'Diesel',
-      electric: 'Electric',
-      hybrid: 'Hybrid'
+      petrol: "Petrol",
+      diesel: "Diesel",
+      electric: "Electric",
+      hybrid: "Hybrid",
     };
-    
+
     return fuelLabels[fuelType] || fuelType;
   };
 
@@ -68,7 +70,10 @@ const VehicleList = ({ vehicles, onEdit, onDelete, canModify }) => {
                   <button className="btn-edit" onClick={() => onEdit(vehicle)}>
                     Edit
                   </button>
-                  <button className="btn-delete" onClick={() => onDelete(vehicle)}>
+                  <button
+                    className="btn-delete"
+                    onClick={() => onDelete(vehicle)}
+                  >
                     Delete
                   </button>
                 </td>
