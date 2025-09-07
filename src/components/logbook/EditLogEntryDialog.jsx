@@ -36,8 +36,8 @@ const EditLogEntryDialog = ({ show, onClose, entry, onEditEntry }) => {
 
   return (
     <Dialog show={show} onClose={onClose}>
-      <h2>Edit Log Entry</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="settings-section">
+        <h2>Edit Log Entry</h2>
         <div className="form-group">
           <label>Date</label>
           <input
@@ -76,7 +76,12 @@ const EditLogEntryDialog = ({ show, onClose, entry, onEditEntry }) => {
             onChange={handleChange}
           />
         </div>
-        <button type="submit">Save Changes</button>
+        <div className="dialog-actions">
+          <button type="button" className="btn btn-secondary" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit" className="form-button">Save Changes</button>
+        </div>
       </form>
     </Dialog>
   );

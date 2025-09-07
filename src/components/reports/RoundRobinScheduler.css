@@ -1,9 +1,9 @@
 .round-robin-scheduler {
-  background: var(--background-secondary);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 12px var(--shadow-color);
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
 .scheduler-header {
@@ -18,7 +18,7 @@
 .scheduler-header h2 {
   margin: 0;
   color: var(--text-primary);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
@@ -48,6 +48,14 @@
   font-size: 0.9rem;
 }
 
+.control-group select {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+}
+
 .control-buttons {
   display: flex;
   gap: 8px;
@@ -55,22 +63,19 @@
 }
 
 .control-btn {
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: 1px solid var(--border-color);
   background: white;
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: background 0.2s ease;
 }
 
 .control-btn:hover {
   background: var(--background-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
 }
 
 .control-btn:active {
@@ -83,6 +88,16 @@
   background: white;
 }
 
+.control-btn.primary {
+  border-color: var(--accent-primary);
+  color: white;
+  background: var(--accent-primary);
+}
+
+.control-btn.primary:hover {
+  filter: brightness(0.95);
+}
+
 .control-btn.reset:hover {
   background: rgba(244, 67, 54, 0.08);
 }
@@ -90,14 +105,14 @@
 .scheduler-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .schedule-section {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 6px;
+  padding: 12px;
   border: 1px solid var(--border-color);
 }
 
@@ -127,23 +142,22 @@
 }
 
 .schedule-list {
-  max-height: 400px;
+  max-height: 320px;
   overflow-y: auto;
 }
 
 .schedule-item {
   display: flex;
   align-items: center;
-  padding: 12px;
+  padding: 10px;
   border-radius: 6px;
   margin-bottom: 8px;
   border-left: 4px solid;
   background: var(--background-primary);
-  transition: transform 0.2s ease;
 }
 
 .schedule-item:hover {
-  transform: translateX(4px);
+  background: #f8fafc;
 }
 
 .schedule-item.vehicle {
@@ -152,6 +166,10 @@
 
 .schedule-item.staff {
   border-left-color: #4caf50;
+}
+
+.schedule-item.combined {
+  border-left-color: #9c27b0;
 }
 
 .schedule-date {
@@ -189,6 +207,18 @@
   color: var(--text-muted);
   padding: 20px;
   font-style: italic;
+}
+
+.save-message {
+  margin-top: 8px;
+  color: var(--text-secondary);
+}
+
+.combined-preview {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
 }
 
 /* Removed algorithm info card styles */

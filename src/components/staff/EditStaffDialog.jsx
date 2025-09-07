@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Dialog from "../common/Dialog";
+import "../../styles/Dialog.css";
+import "../../styles/Form.css";
 
 const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
   const [formData, setFormData] = useState({
@@ -31,8 +33,8 @@ const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
 
   return (
     <Dialog show={show} onClose={onClose}>
-      <h2>Edit Staff</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="settings-section">
+        <h2>Edit Staff</h2>
         <div className="form-group">
           <label>Username</label>
           <input
@@ -64,7 +66,12 @@ const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
             <option value="inactive">Inactive</option>
           </select>
         </div>
-        <button type="submit">Save Changes</button>
+        <div className="dialog-actions">
+          <button type="button" className="btn btn-secondary" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit" className="form-button">Save Changes</button>
+        </div>
       </form>
     </Dialog>
   );

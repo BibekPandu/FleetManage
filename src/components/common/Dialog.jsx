@@ -7,8 +7,8 @@ const Dialog = ({ show, onClose, children }) => {
   }
 
   return (
-    <div className="dialog-overlay">
-      <div className="dialog">
+    <div className="dialog-overlay" onClick={onClose}>
+      <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
         <button className="close-button" onClick={onClose}>
           &times;
         </button>
