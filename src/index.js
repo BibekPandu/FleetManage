@@ -9,6 +9,7 @@ import { VehiclesProvider } from "./context/VehiclesContext";
 import { StaffProvider } from "./context/StaffContext";
 import { LogbookProvider } from "./context/LogbookContext";
 import { SchedulesProvider } from "./context/SchedulesContext";
+import { ExpensesProvider } from "./context/ExpensesContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -19,7 +20,9 @@ root.render(
           <LogbookProvider>
             <SchedulesProvider>
               <ReportsProvider>
-                <App />
+                <ExpensesProvider>
+                  <App />
+                </ExpensesProvider>
               </ReportsProvider>
             </SchedulesProvider>
           </LogbookProvider>

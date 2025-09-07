@@ -9,6 +9,7 @@
 
 body {
     background-color: #f7fbff;
+    overflow-x: hidden;
 }
 
 /* --- Main Application Layout --- */
@@ -16,6 +17,8 @@ body {
 
 .app-layout {
   display: flex;
+  min-height: 100vh;
+  width: 100%;
 }
 
 .main-content-wrapper {
@@ -25,6 +28,8 @@ body {
   min-width: 0;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f7fbff;
 }
 
 .main-content {
@@ -32,21 +37,86 @@ body {
   background-color: #f7fbff;
   padding: 32px;
   box-sizing: border-box;
+  min-height: 0;
+  width: 100%;
 }
 
 /* --- Responsive Layout for Main Content --- */
-@media (max-width: 900px) {
+@media (max-width: 1400px) {
+  .main-content {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 1200px) {
   .main-content {
     padding: 24px;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
+  .main-content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 900px) {
   .main-content {
     padding: 16px;
   }
 }
 
+@media (max-width: 768px) {
+  .main-content {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .main-content {
+    padding: 6px;
+  }
+}
+
 .content-area {
   padding: 20px;
+}
+
+/* Ensure proper scrolling on mobile */
+@media (max-width: 768px) {
+  .main-content-wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .main-content {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+/* Fix for very small screens */
+@media (max-width: 320px) {
+  .main-content {
+    padding: 4px;
+  }
+}
+
+/* Ensure content doesn't overflow on mobile */
+@media (max-width: 480px) {
+  .main-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
 }
