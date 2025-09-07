@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import "../common/Dialog.css";
-import "../common/Form.css";
+import "../../styles/Dialog.css";
+import "../../styles/Form.css";
 import "./AddScheduleDialog.css";
 import { useSchedules } from "../../context/SchedulesContext";
 

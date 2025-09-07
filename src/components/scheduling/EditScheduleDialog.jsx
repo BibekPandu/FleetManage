@@ -1,8 +1,6 @@
-// EditScheduleDialog.js
-
 import React, { useState, useEffect } from "react";
-import "../common/Dialog.css";
-import "../common/Form.css";
+import "../../styles/Dialog.css";
+import "../../styles/Form.css";
 import "./EditScheduleDialog.css";
 
 const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {

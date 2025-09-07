@@ -1,5 +1,5 @@
 import React from "react";
-import "../common/Table.css";
+import "../../styles/Table.css";
 import Badge from "../common/Badge";
 
 const ScheduleList = ({ schedules, onEdit, onDelete, canModify }) => {
