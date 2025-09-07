@@ -1,30 +1,30 @@
-import React from 'react';
-import './DashboardCards.css';
+import React from "react";
+import "./DashboardCards.css";
 
 const DashboardCards = ({ stats }) => {
   const getChangeColor = (changeType) => {
     switch (changeType) {
-      case 'positive':
-        return '#10b981';
-      case 'negative':
-        return '#ef4444';
-      case 'neutral':
-        return '#6b7280';
+      case "positive":
+        return "#10b981";
+      case "negative":
+        return "#ef4444";
+      case "neutral":
+        return "#6b7280";
       default:
-        return '#6b7280';
+        return "#6b7280";
     }
   };
 
   const getChangeIcon = (changeType) => {
     switch (changeType) {
-      case 'positive':
-        return '↗️';
-      case 'negative':
-        return '↘️';
-      case 'neutral':
-        return '→';
+      case "positive":
+        return "↗️";
+      case "negative":
+        return "↘️";
+      case "neutral":
+        return "→";
       default:
-        return '→';
+        return "→";
     }
   };
 
@@ -34,8 +34,13 @@ const DashboardCards = ({ stats }) => {
         <div key={index} className="stat-card">
           <div className="stat-header">
             <div className="stat-icon">{stat.icon}</div>
-            <div className="stat-change" style={{ color: getChangeColor(stat.changeType) }}>
-              <span className="change-icon">{getChangeIcon(stat.changeType)}</span>
+            <div
+              className="stat-change"
+              style={{ color: getChangeColor(stat.changeType) }}
+            >
+              <span className="change-icon">
+                {getChangeIcon(stat.changeType)}
+              </span>
               <span className="change-value">{stat.change}</span>
             </div>
           </div>
