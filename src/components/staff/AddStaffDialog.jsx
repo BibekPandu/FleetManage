@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import "../common/Dialog.css";
-import "../common/Form.css";
+import "../../styles/Dialog.css";
+import "../../styles/Form.css";
 
 const AddStaffDialog = ({ show, onClose, onAddStaff }) => {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     role: "driver",
     status: "active",
   });
@@ -28,12 +28,12 @@ const AddStaffDialog = ({ show, onClose, onAddStaff }) => {
         <form onSubmit={handleSubmit} className="settings-section">
           <h2>Add Staff</h2>
           <div className="form-group">
-            <label htmlFor="name">Name</label>
+            <label htmlFor="username">Username</label>
             <input
-              id="name"
-              name="name"
+              id="username"
+              name="username"
               type="text"
-              value={formData.name}
+              value={formData.username}
               onChange={handleChange}
               required
             />
@@ -50,6 +50,7 @@ const AddStaffDialog = ({ show, onClose, onAddStaff }) => {
               <option value="driver">Driver</option>
               <option value="mechanic">Mechanic</option>
               <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <div className="form-group">

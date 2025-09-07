@@ -1,5 +1,5 @@
 import React from "react";
-import "../common/Table.css";
+import "../../styles/Table.css";
 import Badge from "../common/Badge";
 
 const StaffList = ({ staff, onEdit, onDelete, canModify }) => {
@@ -9,7 +9,7 @@ const StaffList = ({ staff, onEdit, onDelete, canModify }) => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
+            <th>Username</th>
             <th>Role</th>
             <th>Status</th>
             {canModify && <th>Actions</th>}
@@ -19,7 +19,7 @@ const StaffList = ({ staff, onEdit, onDelete, canModify }) => {
           {staff.map((staffMember) => (
             <tr key={staffMember.id}>
               <td>{staffMember.id}</td>
-              <td>{staffMember.name}</td>
+              <td>{staffMember.username}</td>
               <td>{staffMember.role}</td>
               <td>
                 <Badge type={staffMember.status}>{staffMember.status}</Badge>

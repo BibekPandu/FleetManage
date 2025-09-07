@@ -3,7 +3,7 @@ import Dialog from "../common/Dialog";
 
 const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     role: "driver",
     status: "active",
   });
@@ -11,7 +11,7 @@ const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
   useEffect(() => {
     if (staff) {
       setFormData({
-        name: staff.name || "",
+        username: staff.username || "",
         role: staff.role || "driver",
         status: staff.status || "active",
       });
@@ -34,11 +34,11 @@ const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
       <h2>Edit Staff</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Name</label>
+          <label>Username</label>
           <input
             type="text"
-            name="name"
-            value={formData.name}
+            name="username"
+            value={formData.username}
             onChange={handleChange}
             required
           />
@@ -54,6 +54,7 @@ const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
             <option value="driver">Driver</option>
             <option value="mechanic">Mechanic</option>
             <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
           </select>
         </div>
         <div className="form-group">
