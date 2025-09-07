@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./SettingsForm.css";
-import "../common/Form.css";
+import "../../styles/Form.css";
 import useAuth from "../../hooks/useAuth";
 
 const SettingsForm = () => {
