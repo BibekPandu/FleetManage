@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../common/Form.css";
+import "../../styles/Form.css";
 
 const validateEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -9,7 +9,7 @@ const RegisterForm = ({ onRegister }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("driver"); // Default role
+  const [role, setRole] = useState("driver");
   const [errors, setErrors] = useState({});
 
   const handleSubmit = (e) => {
@@ -77,6 +77,7 @@ const RegisterForm = ({ onRegister }) => {
           </select>
           {errors.role && <div className="form-error">{errors.role}</div>}
         </div>
+        <br />
         <button type="submit" className="form-button">
           Register
         </button>

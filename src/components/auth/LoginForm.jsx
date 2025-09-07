@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import "../common/Form.css";
-
+import "../../styles/Form.css";
 const LoginForm = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +47,7 @@ const LoginForm = ({ onLogin }) => {
             <div className="form-error">{errors.password}</div>
           )}
         </div>
+        <br />
         <button type="submit" className="form-button">
           Login
         </button>
