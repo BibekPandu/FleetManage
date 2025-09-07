@@ -1,5 +1,5 @@
-import React from 'react';
-import './Dialog.css';
+import React from "react";
+import "../../styles/Dialog.css";
 
 const Dialog = ({ show, onClose, children }) => {
   if (!show) {

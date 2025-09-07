@@ -1,6 +1,6 @@
-import React from 'react';
-import './Dialog.css';
-import './ConfirmationDialog.css';
+import React from "react";
+import "../../styles/Dialog.css";
+import "../../styles/ConfirmationDialog.css";
 
 const ConfirmationDialog = ({ show, onClose, onConfirm, title, message }) => {
   if (!show) {
@@ -9,10 +9,15 @@ const ConfirmationDialog = ({ show, onClose, onConfirm, title, message }) => {
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
-      <div className="dialog-content confirmation-dialog" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="dialog-content confirmation-dialog"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="dialog-header">
           <h2>{title}</h2>
-          <button className="close-button" onClick={onClose}>&times;</button>
+          <button className="close-button" onClick={onClose}>
+            &times;
+          </button>
         </div>
         <div className="dialog-body">
           <p>{message}</p>
