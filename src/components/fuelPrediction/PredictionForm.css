@@ -1,60 +1,115 @@
 .prediction-form {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.prediction-form .form-group {
-    margin-bottom: 15px;
+.form-title {
+  color: #2c3e50;
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
-.prediction-form label {
-    display: block;
-    margin-bottom: 5px;
+.form-description {
+  color: #5a6c7d;
+  margin-bottom: 24px;
+  line-height: 1.5;
+  font-size: 0.95rem;
 }
 
-.prediction-form input,
-.prediction-form select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.prediction-form button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.prediction-form button:hover {
-    background-color: #0056b3;
-}
-
-.prediction-form .form-title {
-  margin-top: 0;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 10px;
-  font-size: 1.3rem;
-  color: var(--text-primary);
-}
-
-.prediction-form .form-grid {
+.form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
+  margin-bottom: 24px;
 }
 
-/* For smaller screens, stack the grid items */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 12px 16px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  color: #2c3e50;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: #b8c5d6;
+}
+
+.form-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  display: block;
+}
+
+.form-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.form-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .prediction-form .form-grid {
+  .form-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .form-button {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .prediction-form {
+    padding: 16px;
+  }
+  
+  .form-title {
+    font-size: 1.2rem;
+  }
+  
+  .form-description {
+    font-size: 0.9rem;
   }
 }
 
