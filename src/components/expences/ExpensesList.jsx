@@ -1,10 +1,10 @@
-import React from 'react';
-import '../common/Table.css';
-import './ExpensesList.css';
+import React from "react";
+import "../../styles/Table.css";
+import "./ExpensesList.css";
 
 const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
   const formatDate = (date) => {
-    if (!date) return '';
+    if (!date) return "";
     return new Date(date).toLocaleDateString();
   };
 
@@ -40,11 +40,22 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
               <td>${Number(expense.amount).toFixed(2)}</td>
               <td>{expense.category}</td>
               <td>{expense.description}</td>
-              <td>{expense.make ? `${expense.make} ${expense.model} (${expense.license_plate})` : '-'}</td>
+              <td>
+                {expense.make
+                  ? `${expense.make} ${expense.model} (${expense.license_plate})`
+                  : "-"}
+              </td>
               {canModify && (
                 <td>
-                  <button className="btn-edit" onClick={() => onEdit(expense)}>Edit</button>
-                  <button className="btn-delete" onClick={() => onDelete(expense)}>Delete</button>
+                  <button className="btn-edit" onClick={() => onEdit(expense)}>
+                    Edit
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => onDelete(expense)}
+                  >
+                    Delete
+                  </button>
                 </td>
               )}
             </tr>
@@ -55,4 +66,4 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
   );
 };
 
-export default ExpensesList; 
+export default ExpensesList;

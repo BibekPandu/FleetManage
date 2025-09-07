@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "../common/Dialog.css";
-import "../common/Form.css";
+import "../../styles/Dialog.css";
+import "../../styles/Form.css";
 import "./EditExpenseDialog.css";
 
 function toInputDateString(dateString) {
@@ -10,7 +10,7 @@ function toInputDateString(dateString) {
 }
 
 function cleanVehicleId(val) {
-  if (val === '' || val === undefined || val === null) return null;
+  if (val === "" || val === undefined || val === null) return null;
   const num = Number(val);
   return isNaN(num) ? null : num;
 }
