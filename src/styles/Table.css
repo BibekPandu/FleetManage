@@ -1,0 +1,81 @@
+/* --- SHARED TABLE STYLES --- */
+
+.table-container {
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border: 1px solid var(--border-color);
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.table-container thead {
+  background-color: var(--background-primary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table-container th {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-container tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.table-container tbody tr:last-of-type {
+  border-bottom: none;
+}
+
+.table-container tbody tr:hover {
+  background-color: var(--background-primary);
+}
+
+.table-container td button {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-right: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.table-container td button:last-child {
+  margin-right: 0;
+}
+
+.table-container td button.btn-edit:hover {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: white;
+}
+
+.table-container td button.btn-delete {
+  background-color: #fff;
+  color: var(--accent-danger);
+  border: 1.5px solid var(--accent-danger);
+  transition: background 0.2s, color 0.2s;
+}
+
+.table-container td button.btn-delete:hover {
+  background-color: #d32f2f;
+  color: #fff;
+  border-color: #d32f2f;
+}

@@ -1,0 +1,29 @@
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-active {
+  background-color: #28a74533; /* Green with opacity */
+  color: #218838; /* Darker green */
+}
+
+.badge-inactive {
+  background-color: #6c757d33; /* Gray with opacity */
+  color: #5a6268; /* Darker gray */
+}
+
+.badge-scheduled {
+  background-color: #ffc10733; /* Yellow with opacity */
+  color: #d39e00; /* Darker yellow */
+}
+
+.badge-completed {
+  background-color: #17a2b833; /* Teal with opacity */
+  color: #138496; /* Darker teal */
+} 

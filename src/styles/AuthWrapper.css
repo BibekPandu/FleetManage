@@ -1,0 +1,9 @@
+/* Basic styles for the AuthWrapper if needed. 
+   Can be used for centering forms on a page or providing a common background. */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+}
