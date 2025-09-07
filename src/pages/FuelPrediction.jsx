@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import './FuelPrediction.css';
-import PredictionForm from '../components/fuelPrediction/PredictionForm';
-import PredictionResult from '../components/fuelPrediction/PredictionResult';
+import React, { useState } from "react";
+import PredictionForm from "../components/fuelPrediction/PredictionForm";
+import PredictionResult from "../components/fuelPrediction/PredictionResult";
 
 const FuelPrediction = () => {
   const [predictionResult, setPredictionResult] = useState(null);
@@ -14,29 +13,31 @@ const FuelPrediction = () => {
     setPredictionResult(null);
 
     try {
-      // In a real app, this URL would be configurable
-      const response = await fetch('http://localhost:4000/fuelPredictionStarterPrompt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const token = localStorage.getItem("fleetfox_token");
+
+      const response = await fetch(
+        "http://localhost:5000/api/fuel-prediction/predict",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Something went wrong with the prediction service.');
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Failed to predict fuel consumption"
+        );
       }
 
       const result = await response.json();
-
-      // For this demo, we'll just display the generated prompt.
-      // A more advanced implementation might use this prompt to call *another* model.
-      setPredictionResult({
-        prompt: result.prompt,
-        inputs: formData,
-      });
-
+      setPredictionResult(result.prediction);
     } catch (err) {
+      console.error("Fuel prediction error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -47,8 +48,18 @@ const FuelPrediction = () => {
     <div className="fuel-prediction-page">
       <div className="page-header">
         <h1>Fuel Prediction</h1>
+        {/* <p className="page-description">
+          Predict fuel consumption using multiple regression algorithm based on
+          vehicle characteristics, load, speed, distance, weather, and terrain
+          conditions.
+        </p> */}
       </div>
-      <div className="fuel-prediction-container">
+      <div
+        style={{
+          maxWidth: "600px",
+          margin: "0 auto",
+        }}
+      >
         <PredictionForm onPredict={handlePredict} loading={loading} />
         {error && <div className="error-message">{error}</div>}
         <PredictionResult result={predictionResult} loading={loading} />

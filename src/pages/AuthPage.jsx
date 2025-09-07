@@ -3,7 +3,7 @@ import LoginForm from "../components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import "./AuthPage.css";
+import "../styles/AuthPage.css";
 
 const AuthPage = () => {
   const [isLoginView, setIsLoginView] = useState(true);

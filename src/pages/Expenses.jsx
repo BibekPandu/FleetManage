@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
-import './Expenses.css';
-import { useExpenses } from '../context/ExpensesContext';
-import useAuth from '../hooks/useAuth';
-import ExpensesList from '../components/expences/ExpensesList';
-import AddExpenseDialog from '../components/expences/AddExpenseDialog';
-import EditExpenseDialog from '../components/expences/EditExpenseDialog';
-import ConfirmationDialog from '../components/common/ConfirmationDialog';
+import React, { useState } from "react";
+import "../styles/Expenses.css";
+
+import { useExpenses } from "../context/ExpensesContext";
+import useAuth from "../hooks/useAuth";
+import ExpensesList from "../components/expences/ExpensesList";
+import AddExpenseDialog from "../components/expences/AddExpenseDialog";
+import EditExpenseDialog from "../components/expences/EditExpenseDialog";
+import ConfirmationDialog from "../components/common/ConfirmationDialog";
 
 const Expenses = () => {
   const { user } = useAuth();
-  const canModify = user?.role === 'admin' || user?.role === 'manager';
-  const { expenses, loading, error, addExpense, updateExpense, deleteExpense, clearError } = useExpenses();
+  const canModify = user?.role === "admin" || user?.role === "manager";
+  const {
+    expenses,
+    loading,
+    error,
+    addExpense,
+    updateExpense,
+    deleteExpense,
+    clearError,
+  } = useExpenses();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -73,7 +82,9 @@ const Expenses = () => {
     <div className="expenses">
       <div className="page-header">
         <h1>Expenses</h1>
-        {canModify && <button onClick={() => setShowAddDialog(true)}>Add Expense</button>}
+        {canModify && (
+          <button onClick={() => setShowAddDialog(true)}>Add Expense</button>
+        )}
       </div>
       {error && (
         <div className="error-message">

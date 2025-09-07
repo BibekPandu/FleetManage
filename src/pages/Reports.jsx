@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
-import './Reports.css';
-import { useReports } from '../context/ReportsContext';
-import StatCard from '../components/reports/StatCard';
-import SchedulesBarChart from '../components/reports/SchedulesBarChart';
+import React, { useEffect } from "react";
+import "../styles/Reports.css";
+import { useReports } from "../context/ReportsContext";
+import StatCard from "../components/reports/StatCard";
+import SchedulesBarChart from "../components/reports/SchedulesBarChart";
+import RoundRobinScheduler from "../components/reports/RoundRobinScheduler";
 
 const Reports = () => {
   const {
@@ -32,11 +33,18 @@ const Reports = () => {
       </div>
       {loading && <div className="loading">Loading report statistics...</div>}
       {error && <div className="error-message">{error}</div>}
+
+      {/* Round-Robin Scheduling System */}
+      <RoundRobinScheduler />
+
       <div className="stat-cards-container">
-        <StatCard title="Total Vehicles" value={vehicleStats?.total ?? '-'} />
-        <StatCard title="Total Staff" value={staffStats?.total ?? '-'} />
-        <StatCard title="Total Logbook Entries" value={logbookStats?.total ?? '-'} />
-        <StatCard title="Total Expenses" value={expensesStats?.total ?? '-'} />
+        <StatCard title="Total Vehicles" value={vehicleStats?.total ?? "-"} />
+        <StatCard title="Total Staff" value={staffStats?.total ?? "-"} />
+        <StatCard
+          title="Total Logbook Entries"
+          value={logbookStats?.total ?? "-"}
+        />
+        <StatCard title="Total Expenses" value={expensesStats?.total ?? "-"} />
       </div>
       {/* Example chart placeholder, update as needed */}
       <div className="charts-container">
