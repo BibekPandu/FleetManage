@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Dialog from "../common/Dialog";
-import "../common/Dialog.css";
-import "../common/Form.css";
+import "../../styles/Dialog.css";
+import "../../styles/Form.css";
 import "./EditLogEntryDialog.css";
 
 const EditLogEntryDialog = ({ show, onClose, entry, onEditEntry }) => {

@@ -1,5 +1,5 @@
-import React from 'react';
-import '../common/Table.css';
+import React from "react";
+import "../../styles/Table.css";
 
 const LogbookList = ({ entries, onEdit, onDelete, canModify }) => {
   return (
@@ -25,8 +25,15 @@ const LogbookList = ({ entries, onEdit, onDelete, canModify }) => {
               <td>{entry.description}</td>
               {canModify && (
                 <td>
-                  <button className="btn-edit" onClick={() => onEdit(entry)}>Edit</button>
-                  <button className="btn-delete" onClick={() => onDelete(entry)}>Delete</button>
+                  <button className="btn-edit" onClick={() => onEdit(entry)}>
+                    Edit
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => onDelete(entry)}
+                  >
+                    Delete
+                  </button>
                 </td>
               )}
             </tr>
