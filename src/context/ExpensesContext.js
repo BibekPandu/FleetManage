@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import useAuth from "../hooks/useAuth";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const ExpensesContext = createContext();
 
@@ -16,14 +15,14 @@ export const ExpensesProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("fleetfox_token");
-  const { isAuthenticated } = useAuth();
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
-  const fetchExpenses = async () => {
-    if (!isAuthenticated) return;
+  const fetchExpenses = useCallback(async () => {
+    if (!token) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:5000/api/expences", {
+      const response = await fetch(`${API_BASE_URL}/expences`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -39,14 +38,14 @@ export const ExpensesProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_BASE_URL, token]);
 
   const addExpense = async (expenseData) => {
     if (!token) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:5000/api/expences", {
+      const response = await fetch(`${API_BASE_URL}/expences`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -74,7 +73,7 @@ export const ExpensesProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:5000/api/expences/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/expences/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -102,7 +101,7 @@ export const ExpensesProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:5000/api/expences/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/expences/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -125,7 +124,7 @@ export const ExpensesProvider = ({ children }) => {
   const getExpenseById = async (id) => {
     if (!token) return null;
     try {
-      const response = await fetch(`http://localhost:5000/api/expences/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/expences/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -148,7 +147,7 @@ export const ExpensesProvider = ({ children }) => {
     if (token) {
       fetchExpenses();
     }
-  }, [token]);
+  }, [token, fetchExpenses]);
 
   const value = {
     expenses,

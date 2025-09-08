@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 
 const VehiclesContext = createContext(null);
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
 
 export const VehiclesProvider = ({ children }) => {
   const [vehicles, setVehicles] = useState([]);
@@ -15,7 +15,9 @@ export const VehiclesProvider = ({ children }) => {
   // Get auth token
   const getAuthHeaders = () => {
     const token = localStorage.getItem('fleetfox_token');
-    console.log('🔑 Token from localStorage:', token ? 'Token exists' : 'No token found');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔑 Token from localStorage:', token ? 'Token exists' : 'No token found');
+    }
     
     if (!token) {
       console.error('❌ No authentication token found in localStorage');
@@ -30,6 +32,11 @@ export const VehiclesProvider = ({ children }) => {
 
   // Fetch all vehicles
   const fetchVehicles = async () => {
+    const token = localStorage.getItem('fleetfox_token');
+    if (!token) {
+      setError('Authentication required');
+      return;
+    }
     setLoading(true);
     setError(null);
     
@@ -54,6 +61,10 @@ export const VehiclesProvider = ({ children }) => {
 
   // Fetch vehicle statistics
   const fetchStats = async () => {
+    const token = localStorage.getItem('fleetfox_token');
+    if (!token) {
+      return;
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/vehicles/stats/overview`, {
         headers: getAuthHeaders()
@@ -72,6 +83,11 @@ export const VehiclesProvider = ({ children }) => {
 
   // Create new vehicle
   const createVehicle = async (vehicleData) => {
+    const token = localStorage.getItem('fleetfox_token');
+    if (!token) {
+      setError('Authentication required');
+      throw new Error('Authentication required');
+    }
     setLoading(true);
     setError(null);
     
@@ -106,6 +122,11 @@ export const VehiclesProvider = ({ children }) => {
 
   // Update vehicle
   const updateVehicle = async (id, vehicleData) => {
+    const token = localStorage.getItem('fleetfox_token');
+    if (!token) {
+      setError('Authentication required');
+      throw new Error('Authentication required');
+    }
     setLoading(true);
     setError(null);
     
@@ -141,6 +162,11 @@ export const VehiclesProvider = ({ children }) => {
 
   // Delete vehicle
   const deleteVehicle = async (id) => {
+    const token = localStorage.getItem('fleetfox_token');
+    if (!token) {
+      setError('Authentication required');
+      throw new Error('Authentication required');
+    }
     setLoading(true);
     setError(null);
     
@@ -173,6 +199,10 @@ export const VehiclesProvider = ({ children }) => {
 
   // Get single vehicle
   const getVehicle = async (id) => {
+    const token = localStorage.getItem('fleetfox_token');
+    if (!token) {
+      throw new Error('Authentication required');
+    }
     try {
       const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
         headers: getAuthHeaders()

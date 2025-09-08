@@ -1,6 +1,9 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 const ReportsContext = createContext();
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
 
 export const ReportsProvider = ({ children }) => {
   const [vehicleStats, setVehicleStats] = useState(null);
@@ -9,23 +12,38 @@ export const ReportsProvider = ({ children }) => {
   const [expensesStats, setExpensesStats] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { user, isAuthenticated } = useAuth();
 
-  const token = localStorage.getItem('fleetfox_token');
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('fleetfox_token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    return {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+  };
 
   const fetchVehicleStats = async () => {
+    if (!isAuthenticated()) return;
+    
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/vehicles/stats/overview', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch(`${API_BASE_URL}/vehicles/stats/overview`, {
+        headers: getAuthHeaders(),
       });
-      if (!response.ok) throw new Error('Failed to fetch vehicle stats');
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Authentication required');
+        }
+        throw new Error('Failed to fetch vehicle stats');
+      }
       const data = await response.json();
       setVehicleStats(data);
     } catch (err) {
+      console.error('Error fetching vehicle stats:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -33,19 +51,24 @@ export const ReportsProvider = ({ children }) => {
   };
 
   const fetchStaffStats = async () => {
+    if (!isAuthenticated()) return;
+    
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/staff/stats/overview', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch(`${API_BASE_URL}/staff/stats/overview`, {
+        headers: getAuthHeaders(),
       });
-      if (!response.ok) throw new Error('Failed to fetch staff stats');
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Authentication required');
+        }
+        throw new Error('Failed to fetch staff stats');
+      }
       const data = await response.json();
       setStaffStats(data);
     } catch (err) {
+      console.error('Error fetching staff stats:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -53,19 +76,24 @@ export const ReportsProvider = ({ children }) => {
   };
 
   const fetchLogbookStats = async () => {
+    if (!isAuthenticated()) return;
+    
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/logbook/stats/overview', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch(`${API_BASE_URL}/logbook/stats/overview`, {
+        headers: getAuthHeaders(),
       });
-      if (!response.ok) throw new Error('Failed to fetch logbook stats');
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Authentication required');
+        }
+        throw new Error('Failed to fetch logbook stats');
+      }
       const data = await response.json();
       setLogbookStats(data);
     } catch (err) {
+      console.error('Error fetching logbook stats:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -73,19 +101,24 @@ export const ReportsProvider = ({ children }) => {
   };
 
   const fetchExpensesStats = async () => {
+    if (!isAuthenticated()) return;
+    
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/expences/stats/overview', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch(`${API_BASE_URL}/expences/stats/overview`, {
+        headers: getAuthHeaders(),
       });
-      if (!response.ok) throw new Error('Failed to fetch expenses stats');
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Authentication required');
+        }
+        throw new Error('Failed to fetch expenses stats');
+      }
       const data = await response.json();
       setExpensesStats(data);
     } catch (err) {
+      console.error('Error fetching expenses stats:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -93,6 +126,8 @@ export const ReportsProvider = ({ children }) => {
   };
 
   const fetchAllStats = async () => {
+    if (!isAuthenticated()) return;
+    
     await Promise.all([
       fetchVehicleStats(),
       fetchStaffStats(),
@@ -100,6 +135,13 @@ export const ReportsProvider = ({ children }) => {
       fetchExpensesStats(),
     ]);
   };
+
+  // Only fetch stats when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated() && user) {
+      fetchAllStats();
+    }
+  }, [user, isAuthenticated]);
 
   const value = {
     vehicleStats,

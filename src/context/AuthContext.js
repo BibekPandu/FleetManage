@@ -3,7 +3,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 const AuthContext = createContext(null);
 
 // API base URL
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -57,7 +57,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
 
-    console.log("🔐 Registration attempt with data:", userData);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("🔐 Registration attempt with data:", userData);
+    }
 
     try {
       if (userData.role === "admin") {
@@ -73,19 +75,25 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      console.log("📡 Registration response:", data);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("📡 Registration response:", data);
+      }
 
       if (!response.ok) {
         throw new Error(data.message || "Registration failed");
       }
 
-      console.log("✅ Registration successful for user:", userData.username);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("✅ Registration successful for user:", userData.username);
+      }
 
       // Set flag to redirect to login instead of auto-login
       setShouldRedirectToLogin(true);
       return data.user;
     } catch (error) {
-      console.error("❌ Registration error:", error);
+      if (process.env.NODE_ENV !== "production") {
+        console.error("❌ Registration error:", error);
+      }
       setError(error.message);
       throw error;
     } finally {
@@ -97,7 +105,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
 
-    console.log("🔍 Login attempt with credentials:", credentials);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("🔍 Login attempt with credentials:", credentials);
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -112,13 +122,17 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      console.log("📡 Login response:", data);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("📡 Login response:", data);
+      }
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
 
-      console.log("✅ Login successful for user:", credentials.username);
+      if (process.env.NODE_ENV !== "production") {
+        console.log("✅ Login successful for user:", credentials.username);
+      }
 
       // Store user and token
       setUser(data.user);
@@ -127,7 +141,9 @@ export const AuthProvider = ({ children }) => {
       setShouldRedirectToLogin(false);
       return data.user;
     } catch (error) {
-      console.error("❌ Login error:", error);
+      if (process.env.NODE_ENV !== "production") {
+        console.error("❌ Login error:", error);
+      }
       setError(error.message);
       throw error;
     } finally {

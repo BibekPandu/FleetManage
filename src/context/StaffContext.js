@@ -16,16 +16,17 @@ export const StaffProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("fleetfox_token");
-  const { isAuthenticated } = useAuth();
+  // Keep hook available for future use. Not required for token-based checks now.
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
   const fetchStaff = async () => {
-    if (!isAuthenticated) return;
+    if (!token) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/staff", {
+      const response = await fetch(`${API_BASE_URL}/staff`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -47,14 +48,16 @@ export const StaffProvider = ({ children }) => {
   };
 
   const createStaff = async (staffData) => {
-    console.log("DB  POST", staffData);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("DB  POST", staffData);
+    }
     if (!token) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/staff", {
+      const response = await fetch(`${API_BASE_URL}/staff`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -87,7 +90,7 @@ export const StaffProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/staff/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/staff/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -120,7 +123,7 @@ export const StaffProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/staff/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/staff/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -147,7 +150,7 @@ export const StaffProvider = ({ children }) => {
     if (!token) return null;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/staff/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/staff/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

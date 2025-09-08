@@ -16,7 +16,8 @@ export const SchedulesProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const user_token = localStorage.getItem("fleetfox_token");
-  const { token } = useAuth();
+  // Hook present for future auth-aware logic; token check suffices for now.
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
   const fetchSchedules = async () => {
     if (!user_token) return;
@@ -25,7 +26,7 @@ export const SchedulesProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/schedules", {
+      const response = await fetch(`${API_BASE_URL}/schedules`, {
         headers: {
           Authorization: `Bearer ${user_token}`,
           "Content-Type": "application/json",
@@ -53,7 +54,7 @@ export const SchedulesProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/schedules", {
+      const response = await fetch(`${API_BASE_URL}/schedules`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${user_token}`,
@@ -87,7 +88,7 @@ export const SchedulesProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/schedules/${id}`,
+        `${API_BASE_URL}/schedules/${id}`,
         {
           method: "PUT",
           headers: {
@@ -125,7 +126,7 @@ export const SchedulesProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/schedules/${id}`,
+        `${API_BASE_URL}/schedules/${id}`,
         {
           method: "DELETE",
           headers: {
