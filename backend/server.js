@@ -49,42 +49,51 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-const PORT = process.env.PORT || 5000;
-
-// Initialize database and start server
-const startServer = async () => {
+// Initialize database (one-time per cold start)
+let databaseInitialized = false;
+const initializeIfNeeded = async () => {
   try {
-    // Test database connection
     const isConnected = await testConnection();
     if (!isConnected) {
       console.error('❌ Failed to connect to database. Please check your MySQL configuration.');
-      process.exit(1);
+      return;
     }
 
-    // Initialize database tables
-    const isInitialized = await initializeDatabase();
-    if (!isInitialized) {
-      console.error('❌ Failed to initialize database tables.');
-      process.exit(1);
-    }
-
-    // Start the server
-    app.listen(PORT, () => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`🚀 FleetFox Backend running on port ${PORT}`);
-        console.log(`📊 Test the API: http://localhost:${PORT}/api/test`);
-        console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
-        console.log(`🚗 Vehicle endpoints: http://localhost:${PORT}/api/vehicles`);
-        console.log(`👥 Staff endpoints: http://localhost:${PORT}/api/staff`);
-        console.log(`📝 Logbook endpoints: http://localhost:${PORT}/api/logbook`);
-        console.log(`⛽ Fuel prediction endpoints: http://localhost:${PORT}/api/fuel-prediction`);
+    if (!databaseInitialized) {
+      const isInitialized = await initializeDatabase();
+      if (!isInitialized) {
+        console.error('❌ Failed to initialize database tables.');
+        return;
       }
-    });
-
+      databaseInitialized = true;
+    }
   } catch (error) {
-    console.error('❌ Server startup failed:', error);
-    process.exit(1);
+    console.error('❌ Server initialization failed:', error);
   }
 };
 
-startServer(); 
+// For traditional server usage (local dev), start listening if run directly
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  (async () => {
+    try {
+      await initializeIfNeeded();
+      app.listen(PORT, () => {
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`🚀 FleetFox Backend running on port ${PORT}`);
+          console.log(`📊 Test the API: http://localhost:${PORT}/api/test`);
+          console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
+          console.log(`🚗 Vehicle endpoints: http://localhost:${PORT}/api/vehicles`);
+          console.log(`👥 Staff endpoints: http://localhost:${PORT}/api/staff`);
+          console.log(`📝 Logbook endpoints: http://localhost:${PORT}/api/logbook`);
+          console.log(`⛽ Fuel prediction endpoints: http://localhost:${PORT}/api/fuel-prediction`);
+        }
+      });
+    } catch (error) {
+      console.error('❌ Server startup failed:', error);
+      process.exit(1);
+    }
+  })();
+}
+
+module.exports = { app, initializeIfNeeded };

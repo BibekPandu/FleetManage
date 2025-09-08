@@ -16,7 +16,7 @@ const FuelPrediction = () => {
       const token = localStorage.getItem("fleetfox_token");
 
       const response = await fetch(
-        "http://localhost:5000/api/fuel-prediction/predict",
+        `${process.env.REACT_APP_API_BASE_URL || ''}/fuel-prediction/predict`,
         {
           method: "POST",
           headers: {
