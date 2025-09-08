@@ -25,8 +25,8 @@ const staffRoutes = require('./routes/staff');
 const logbookRoutes = require('./routes/logbook');
 const schedulesRouter = require('./routes/schedules');
 const expencesRouter = require('./routes/expences');
+const fuelPredictionRoutes = require('./routes/fuelPrediction');
 // const reportRoutes = require('./routes/reports');
-// const fuelPredictionRoutes = require('./routes/fuel-prediction');
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -35,8 +35,8 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/logbook', logbookRoutes);
 app.use('/api/schedules', schedulesRouter);
 app.use('/api/expences', expencesRouter);
+app.use('/api/fuel-prediction', fuelPredictionRoutes);
 // app.use('/api/reports', reportRoutes);
-// app.use('/api/fuel-prediction', fuelPredictionRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -70,12 +70,15 @@ const startServer = async () => {
 
     // Start the server
     app.listen(PORT, () => {
-      console.log(`🚀 FleetFox Backend running on port ${PORT}`);
-      console.log(`📊 Test the API: http://localhost:${PORT}/api/test`);
-      console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
-      console.log(`🚗 Vehicle endpoints: http://localhost:${PORT}/api/vehicles`);
-      console.log(`👥 Staff endpoints: http://localhost:${PORT}/api/staff`);
-      console.log(`📝 Logbook endpoints: http://localhost:${PORT}/api/logbook`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`🚀 FleetFox Backend running on port ${PORT}`);
+        console.log(`📊 Test the API: http://localhost:${PORT}/api/test`);
+        console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
+        console.log(`🚗 Vehicle endpoints: http://localhost:${PORT}/api/vehicles`);
+        console.log(`👥 Staff endpoints: http://localhost:${PORT}/api/staff`);
+        console.log(`📝 Logbook endpoints: http://localhost:${PORT}/api/logbook`);
+        console.log(`⛽ Fuel prediction endpoints: http://localhost:${PORT}/api/fuel-prediction`);
+      }
     });
 
   } catch (error) {
