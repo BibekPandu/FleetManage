@@ -44,23 +44,46 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // POST /api/staff - Create new staff member
 router.post('/', [
   authenticateToken,
-  requireManager,
-  body('name').notEmpty().withMessage('Name is required'),
-  body('role').isIn(['driver', 'mechanic', 'manager']).withMessage('Valid role is required')
+  body('username').notEmpty().withMessage('Username is required'),
+  body('role').isIn(['driver', 'mechanic', 'manager', 'admin']).withMessage('Valid role is required')
 ], async (req, res) => {
   try {
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔍 POST /api/staff - Request body:', req.body);
+      console.log('👤 Current user:', req.user);
+    }
+    
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('❌ Validation errors:', errors.array());
+      }
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, role, status = 'active' } = req.body;
+    const { username, role, status = 'active' } = req.body;
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('📝 Creating staff with:', { username, role, status });
+    }
+
+    // Check if username already exists
+    const [existingStaff] = await pool.execute(
+      'SELECT id FROM staff WHERE username = ?',
+      [username]
+    );
+
+    if (existingStaff.length > 0) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('❌ Username already exists:', username);
+      }
+      return res.status(400).json({ message: 'Username already exists' });
+    }
 
     // Insert new staff member
     const [result] = await pool.execute(
-      'INSERT INTO staff (name, role, status) VALUES (?, ?, ?)',
-      [name, role, status]
+      'INSERT INTO staff (username, role, status) VALUES (?, ?, ?)',
+      [username, role, status]
     );
 
     // Get the created staff member
@@ -69,13 +92,17 @@ router.post('/', [
       [result.insertId]
     );
 
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('✅ Staff created successfully:', newStaff[0]);
+    }
+
     res.status(201).json({
       message: 'Staff member created successfully',
       staff: newStaff[0]
     });
 
   } catch (error) {
-    console.error('Error creating staff member:', error);
+    console.error('❌ Error creating staff member:', error);
     res.status(500).json({ message: 'Error creating staff member' });
   }
 });
@@ -84,8 +111,8 @@ router.post('/', [
 router.put('/:id', [
   authenticateToken,
   requireManager,
-  body('name').notEmpty().withMessage('Name is required'),
-  body('role').isIn(['driver', 'mechanic', 'manager']).withMessage('Valid role is required'),
+  body('username').notEmpty().withMessage('Username is required'),
+  body('role').isIn(['driver', 'mechanic', 'manager', 'admin']).withMessage('Valid role is required'),
   body('status').isIn(['active', 'inactive']).withMessage('Valid status is required')
 ], async (req, res) => {
   try {
@@ -96,7 +123,7 @@ router.put('/:id', [
     }
 
     const { id } = req.params;
-    const { name, role, status } = req.body;
+    const { username, role, status } = req.body;
 
     // Check if staff member exists
     const [existingStaff] = await pool.execute(
@@ -108,10 +135,20 @@ router.put('/:id', [
       return res.status(404).json({ message: 'Staff member not found' });
     }
 
+    // Check if username already exists (excluding current staff member)
+    const [duplicateUsername] = await pool.execute(
+      'SELECT id FROM staff WHERE username = ? AND id != ?',
+      [username, id]
+    );
+
+    if (duplicateUsername.length > 0) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
     // Update staff member
     await pool.execute(
-      'UPDATE staff SET name = ?, role = ?, status = ? WHERE id = ?',
-      [name, role, status, id]
+      'UPDATE staff SET username = ?, role = ?, status = ? WHERE id = ?',
+      [username, role, status, id]
     );
 
     // Get the updated staff member

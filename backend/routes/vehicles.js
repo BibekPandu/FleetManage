@@ -50,7 +50,8 @@ router.post('/', [
   body('model').notEmpty().withMessage('Model is required'),
   body('year').isInt({ min: 1900, max: new Date().getFullYear() + 1 }).withMessage('Valid year is required'),
   body('license_plate').notEmpty().withMessage('License plate is required'),
-  body('fuel_type').isIn(['petrol', 'diesel', 'electric', 'hybrid']).withMessage('Valid fuel type is required')
+  body('fuel_type').isIn(['petrol', 'diesel', 'electric', 'hybrid']).withMessage('Valid fuel type is required'),
+  body('status').isIn(['active', 'maintenance', 'inactive']).withMessage('Valid status is required')
 ], async (req, res) => {
   try {
     // Check for validation errors
@@ -59,7 +60,7 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { vehicle_number, make, model, year, license_plate, fuel_type } = req.body;
+    const { vehicle_number, make, model, year, license_plate, fuel_type, status } = req.body;
 
     // Check if vehicle number or license plate already exists
     const [existingVehicles] = await pool.execute(
@@ -73,8 +74,8 @@ router.post('/', [
 
     // Insert new vehicle
     const [result] = await pool.execute(
-      'INSERT INTO vehicles (vehicle_number, make, model, year, license_plate, fuel_type) VALUES (?, ?, ?, ?, ?, ?)',
-      [vehicle_number, make, model, year, license_plate, fuel_type]
+      'INSERT INTO vehicles (vehicle_number, make, model, year, license_plate, fuel_type, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [vehicle_number, make, model, year, license_plate, fuel_type, status]
     );
 
     // Get the created vehicle
