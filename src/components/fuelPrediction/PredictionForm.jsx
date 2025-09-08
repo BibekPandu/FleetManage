@@ -12,6 +12,7 @@ const PredictionForm = ({ onPredict, loading }) => {
     vehicleAge: 3,
     weather: "sunny",
     terrain: "flat",
+    fuelPriceNPR: "",
   });
 
   const handleChange = (e) => {
@@ -151,6 +152,20 @@ const PredictionForm = ({ onPredict, loading }) => {
             <option value="mountainous">Mountainous</option>
             <option value="urban">Urban</option>
           </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="fuelPriceNPR">Fuel Price (NPR/liter) - optional</label>
+          <input
+            id="fuelPriceNPR"
+            name="fuelPriceNPR"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Leave blank to use default Nepal price"
+            value={formData.fuelPriceNPR}
+            onChange={handleChange}
+          />
         </div>
       </div>
 
