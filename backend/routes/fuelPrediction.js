@@ -237,4 +237,22 @@ router.get('/analytics', authenticateToken, async (req, res) => {
   }
 });
 
+// POST /api/fuel-prediction/reset-history - Only for admin, clears all prediction history
+router.post(
+  '/reset-history',
+  authenticateToken,
+  async (req, res) => {
+    try {
+      if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Forbidden: Admins only' });
+      }
+      await pool.execute('DELETE FROM fuel_predictions');
+      res.json({ message: 'Fuel prediction history cleared' });
+    } catch (error) {
+      console.error('Error clearing prediction history:', error);
+      res.status(500).json({ message: 'Failed to clear prediction history' });
+    }
+  }
+);
+
 module.exports = router; 

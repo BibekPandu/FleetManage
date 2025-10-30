@@ -84,7 +84,7 @@ const FuelPrediction = () => {
         {error && <div className="error-message">{error}</div>}
         <PredictionResult result={predictionResult} loading={loading} />
         <PredictionMiniChart items={history} />
-        <PredictionHistory items={history} />
+        <PredictionHistory items={history} reloadHistory={loadHistory} />
       </div>
     </div>
   );
