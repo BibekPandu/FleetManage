@@ -20,7 +20,7 @@ const PredictionResult = ({ result, loading }) => {
 
   return (
     <div className="prediction-result settings-section">
-      <h3>📊 Multiple Regression Fuel Prediction Results</h3>
+      <h3>Multiple Regression Fuel Prediction Results</h3>
 
       <div className="prediction-summary">
         <div className="summary-card primary">
@@ -52,7 +52,7 @@ const PredictionResult = ({ result, loading }) => {
       </div>
 
       <div className="prediction-details">
-        <h4>📈 Detailed Breakdown</h4>
+        <h4>Detailed Breakdown</h4>
 
         <div className="detail-grid">
           <div className="detail-item">

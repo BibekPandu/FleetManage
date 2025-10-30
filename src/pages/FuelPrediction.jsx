@@ -1,11 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PredictionForm from "../components/fuelPrediction/PredictionForm";
 import PredictionResult from "../components/fuelPrediction/PredictionResult";
+import PredictionHistory from "../components/fuelPrediction/PredictionHistory";
+import PredictionMiniChart from "../components/fuelPrediction/PredictionMiniChart";
 
 const FuelPrediction = () => {
   const [predictionResult, setPredictionResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  const loadHistory = async () => {
+    try {
+      const token = localStorage.getItem("fleetfox_token");
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/fuel-prediction/history`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      setHistory(data.predictions || []);
+    } catch (_) {}
+  };
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   const handlePredict = async (formData) => {
     setLoading(true);
@@ -36,6 +55,7 @@ const FuelPrediction = () => {
 
       const result = await response.json();
       setPredictionResult(result.prediction);
+      loadHistory();
     } catch (err) {
       console.error("Fuel prediction error:", err);
       setError(err.message);
@@ -63,6 +83,8 @@ const FuelPrediction = () => {
         <PredictionForm onPredict={handlePredict} loading={loading} />
         {error && <div className="error-message">{error}</div>}
         <PredictionResult result={predictionResult} loading={loading} />
+        <PredictionMiniChart items={history} />
+        <PredictionHistory items={history} />
       </div>
     </div>
   );

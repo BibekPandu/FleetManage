@@ -4,6 +4,20 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
+.prediction-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.prediction-toolbar .form-button {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  max-width: none;
+  width: auto;
+}
+
 .form-title {
   color: #2c3e50;
   margin-bottom: 8px;
@@ -85,6 +99,12 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+
+.form-hint {
+  color: #5a6c7d;
+  font-size: 0.8rem;
+  margin-top: 6px;
 }
 
 /* Responsive Design */
