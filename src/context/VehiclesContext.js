@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 
 const VehiclesContext = createContext(null);
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
 export const VehiclesProvider = ({ children }) => {
   const [vehicles, setVehicles] = useState([]);

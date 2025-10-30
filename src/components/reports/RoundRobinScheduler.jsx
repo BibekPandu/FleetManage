@@ -13,7 +13,7 @@ const RoundRobinScheduler = () => {
   const [currentVehicleIndex, setCurrentVehicleIndex] = useState(0);
   const [currentStaffIndex, setCurrentStaffIndex] = useState(0);
   const [scheduleDate, setScheduleDate] = useState("");
-  const [numDays, setNumDays] = useState(14);
+  const [numDays, setNumDays] = useState(7);
   const [includeWeekends, setIncludeWeekends] = useState(false);
   const [defaultTask, setDefaultTask] = useState("Regular Duty Assignment");
   const [saving, setSaving] = useState(false);
@@ -274,7 +274,10 @@ const RoundRobinScheduler = () => {
   return (
     <div className="round-robin-scheduler">
       <div className="scheduler-header">
-        <h2>Scheduling</h2>
+        <div>
+          <h2>Round Robin Scheduler</h2>
+          <p className="scheduler-subtitle">Assign vehicles and drivers evenly over a date range.</p>
+        </div>
         <div className="scheduler-controls">
           <div className="control-group">
             <label>Start Date</label>

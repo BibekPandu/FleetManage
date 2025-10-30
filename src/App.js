@@ -17,6 +17,7 @@ import FuelPrediction from "./pages/FuelPrediction";
 import Settings from "./pages/Settings";
 import AuthPage from "./pages/AuthPage";
 import Expenses from "./pages/Expenses";
+import Landing from "./pages/Landing";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import useAuth from "./hooks/useAuth";
@@ -27,6 +28,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/landing" element={<Landing />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />} />
@@ -39,10 +41,7 @@ function App() {
           <Route path="/fuel-prediction" element={<FuelPrediction />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
-        <Route
-          path="*"
-          element={<Navigate to={isAuthenticated() ? "/" : "/auth"} />}
-        />
+        <Route path="*" element={<Navigate to={isAuthenticated() ? "/" : "/landing"} />} />
       </Routes>
     </Router>
   );

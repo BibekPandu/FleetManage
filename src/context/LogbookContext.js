@@ -25,7 +25,7 @@ export const LogbookProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/logbook`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || '/api'}/logbook`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export const LogbookProvider = ({ children }) => {
     try {
       console.log("DB  POST", entryData);
 
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/logbook`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || '/api'}/logbook`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -90,7 +90,7 @@ export const LogbookProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/logbook/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || '/api'}/logbook/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -123,7 +123,7 @@ export const LogbookProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/logbook/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || '/api'}/logbook/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -150,7 +150,7 @@ export const LogbookProvider = ({ children }) => {
     if (!token) return null;
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/logbook/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || '/api'}/logbook/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

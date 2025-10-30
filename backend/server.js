@@ -9,12 +9,19 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').filter(Boolean);
+app.use(
+  cors({
+    origin: allowedOrigins.length ? allowedOrigins : true,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Basic route for testing
-app.get('/api/test', (req, res) => {
+const API_PREFIX = process.env.API_PREFIX || '/api';
+app.get(`${API_PREFIX}/test`, (req, res) => {
   res.json({ message: 'FleetFox Backend is running!' });
 });
 
@@ -29,13 +36,13 @@ const fuelPredictionRoutes = require('./routes/fuelPrediction');
 // const reportRoutes = require('./routes/reports');
 
 // Use routes
-app.use('/api/auth', authRoutes);
-app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/staff', staffRoutes);
-app.use('/api/logbook', logbookRoutes);
-app.use('/api/schedules', schedulesRouter);
-app.use('/api/expences', expencesRouter);
-app.use('/api/fuel-prediction', fuelPredictionRoutes);
+app.use(`${API_PREFIX}/auth`, authRoutes);
+app.use(`${API_PREFIX}/vehicles`, vehicleRoutes);
+app.use(`${API_PREFIX}/staff`, staffRoutes);
+app.use(`${API_PREFIX}/logbook`, logbookRoutes);
+app.use(`${API_PREFIX}/schedules`, schedulesRouter);
+app.use(`${API_PREFIX}/expences`, expencesRouter);
+app.use(`${API_PREFIX}/fuel-prediction`, fuelPredictionRoutes);
 // app.use('/api/reports', reportRoutes);
 
 // Error handling middleware
@@ -81,12 +88,12 @@ if (require.main === module) {
       app.listen(PORT, () => {
         if (process.env.NODE_ENV !== 'production') {
           console.log(`🚀 FleetFox Backend running on port ${PORT}`);
-          console.log(`📊 Test the API: http://localhost:${PORT}/api/test`);
-          console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
-          console.log(`🚗 Vehicle endpoints: http://localhost:${PORT}/api/vehicles`);
-          console.log(`👥 Staff endpoints: http://localhost:${PORT}/api/staff`);
-          console.log(`📝 Logbook endpoints: http://localhost:${PORT}/api/logbook`);
-          console.log(`⛽ Fuel prediction endpoints: http://localhost:${PORT}/api/fuel-prediction`);
+          console.log(`📊 Test the API: http://localhost:${PORT}${API_PREFIX}/test`);
+          console.log(`🔐 Auth endpoints: http://localhost:${PORT}${API_PREFIX}/auth`);
+          console.log(`🚗 Vehicle endpoints: http://localhost:${PORT}${API_PREFIX}/vehicles`);
+          console.log(`👥 Staff endpoints: http://localhost:${PORT}${API_PREFIX}/staff`);
+          console.log(`📝 Logbook endpoints: http://localhost:${PORT}${API_PREFIX}/logbook`);
+          console.log(`⛽ Fuel prediction endpoints: http://localhost:${PORT}${API_PREFIX}/fuel-prediction`);
         }
       });
     } catch (error) {

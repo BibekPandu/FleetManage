@@ -17,7 +17,7 @@ export const SchedulesProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const user_token = localStorage.getItem("fleetfox_token");
   // Hook present for future auth-aware logic; token check suffices for now.
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "/api";
 
   const fetchSchedules = async () => {
     if (!user_token) return;

@@ -15,7 +15,7 @@ export const ExpensesProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("fleetfox_token");
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "/api";
 
   const fetchExpenses = useCallback(async () => {
     if (!token) return;

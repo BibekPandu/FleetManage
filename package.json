@@ -16,8 +16,8 @@
     "mysql2": "^3.14.1",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.10",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-router-dom": "^7.6.2",
     "react-scripts": "5.0.1",
     "recharts": "^3.0.0",
@@ -30,8 +30,9 @@
     "eject": "react-scripts eject",
     "server": "nodemon backend/server.js",
     "server:start": "node backend/server.js",
-    "dev": "concurrently \"npm run server\" \"npm start\""
+    "dev": "concurrently \"npm --prefix ..\\backend run server\" \"npm start\""
   },
+  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": [
       "react-app",

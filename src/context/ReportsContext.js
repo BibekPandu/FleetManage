@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 
 const ReportsContext = createContext();
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 
 export const ReportsProvider = ({ children }) => {
   const [vehicleStats, setVehicleStats] = useState(null);

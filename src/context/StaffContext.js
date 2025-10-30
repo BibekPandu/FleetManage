@@ -17,7 +17,7 @@ export const StaffProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const token = localStorage.getItem("fleetfox_token");
   // Keep hook available for future use. Not required for token-based checks now.
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "/api";
 
   const fetchStaff = async () => {
     if (!token) return;

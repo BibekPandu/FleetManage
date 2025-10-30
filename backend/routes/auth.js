@@ -73,11 +73,11 @@ router.post(
   }
 );
 
-// Login user
+// Login user (accepts username OR email in the "username" field)
 router.post(
   "/login",
   [
-    body("username").notEmpty().withMessage("Username is required"),
+    body("username").notEmpty().withMessage("Username or email is required"),
     body("password").notEmpty().withMessage("Password is required"),
   ],
   async (req, res) => {
@@ -89,15 +89,16 @@ router.post(
       }
 
       const { username, password } = req.body;
+      const identifier = username?.trim();
 
       if (process.env.NODE_ENV !== "production") {
         console.log("🔍 Login attempt for username:", username);
       }
 
-      // Find user by username
+      // Find user by username OR email
       const [users] = await pool.execute(
-        "SELECT * FROM users WHERE username = ?",
-        [username]
+        "SELECT * FROM users WHERE username = ? OR email = ?",
+        [identifier, identifier]
       );
 
       if (process.env.NODE_ENV !== "production") {
@@ -106,7 +107,7 @@ router.post(
 
       if (users.length === 0) {
         if (process.env.NODE_ENV !== "production") {
-          console.log("❌ No user found with username:", username);
+          console.log("❌ No user found with identifier:", identifier);
         }
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -145,7 +146,7 @@ router.post(
       );
 
       if (process.env.NODE_ENV !== "production") {
-        console.log("✅ Login successful for user:", username);
+        console.log("✅ Login successful for user:", identifier);
       }
 
       res.json({

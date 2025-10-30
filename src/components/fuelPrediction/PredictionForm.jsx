@@ -17,15 +17,34 @@ const PredictionForm = ({ onPredict, loading }) => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "number" ? parseFloat(value) : value,
-    });
+    if (type === "number") {
+      // Allow empty string while typing to avoid NaN warnings
+      const nextValue = value === "" ? "" : Number(value);
+      setFormData({ ...formData, [name]: nextValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onPredict(formData);
+    // Build payload with safe numeric parsing and omit optional price if empty
+    const toNumber = (val) => (val === "" || val === null || typeof val === "undefined" ? undefined : Number(val));
+    const payload = {
+      vehicleType: formData.vehicleType,
+      engineType: formData.engineType,
+      averageLoad: Number(formData.averageLoad),
+      averageSpeed: Number(formData.averageSpeed),
+      distance: Number(formData.distance),
+      vehicleAge: Number(formData.vehicleAge),
+      weather: formData.weather,
+      terrain: formData.terrain,
+    };
+    const price = toNumber(formData.fuelPriceNPR);
+    if (typeof price === "number" && !Number.isNaN(price)) {
+      payload.fuelPriceNPR = price;
+    }
+    onPredict(payload);
   };
 
   return (
@@ -76,7 +95,7 @@ const PredictionForm = ({ onPredict, loading }) => {
             type="number"
             min="0"
             max="5000"
-            value={formData.averageLoad}
+            value={formData.averageLoad === "" ? "" : formData.averageLoad}
             onChange={handleChange}
             required
           />
@@ -90,7 +109,7 @@ const PredictionForm = ({ onPredict, loading }) => {
             type="number"
             min="10"
             max="120"
-            value={formData.averageSpeed}
+            value={formData.averageSpeed === "" ? "" : formData.averageSpeed}
             onChange={handleChange}
             required
           />
@@ -104,7 +123,7 @@ const PredictionForm = ({ onPredict, loading }) => {
             type="number"
             min="1"
             max="1000"
-            value={formData.distance}
+            value={formData.distance === "" ? "" : formData.distance}
             onChange={handleChange}
             required
           />
@@ -118,7 +137,7 @@ const PredictionForm = ({ onPredict, loading }) => {
             type="number"
             min="0"
             max="20"
-            value={formData.vehicleAge}
+            value={formData.vehicleAge === "" ? "" : formData.vehicleAge}
             onChange={handleChange}
             required
           />

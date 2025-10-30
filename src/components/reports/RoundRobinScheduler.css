@@ -22,6 +22,12 @@
   font-weight: 600;
 }
 
+.scheduler-subtitle {
+  margin: 4px 0 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
 .scheduler-controls {
   display: flex;
   align-items: center;
