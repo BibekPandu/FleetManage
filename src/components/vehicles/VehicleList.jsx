@@ -50,6 +50,7 @@ const VehicleList = ({ vehicles, onEdit, onDelete, canModify }) => {
             <th>Model</th>
             <th>Year</th>
             <th>License Plate</th>
+            <th>Driver</th>
             <th>Fuel Type</th>
             <th>Status</th>
             {canModify && <th>Actions</th>}
@@ -63,6 +64,7 @@ const VehicleList = ({ vehicles, onEdit, onDelete, canModify }) => {
               <td>{vehicle.model}</td>
               <td>{vehicle.year}</td>
               <td>{vehicle.license_plate}</td>
+              <td>{vehicle.driver || '-'}</td>
               <td>{getFuelTypeLabel(vehicle.fuel_type)}</td>
               <td>{getStatusBadge(vehicle.status)}</td>
               {canModify && (

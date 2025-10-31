@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import "../../styles/Dialog.css";
 import "../../styles/Form.css";
+import { useStaff } from "../../context/StaffContext";
 const AddVehicleDialog = ({ show, onClose, onAddVehicle }) => {
+  const { staff } = useStaff();
   const [formData, setFormData] = useState({
     vehicle_number: "",
     make: "",
@@ -10,6 +12,7 @@ const AddVehicleDialog = ({ show, onClose, onAddVehicle }) => {
     license_plate: "",
     fuel_type: "petrol",
     status: "active",
+    driver: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -73,6 +76,7 @@ const AddVehicleDialog = ({ show, onClose, onAddVehicle }) => {
         license_plate: "",
         fuel_type: "petrol",
         status: "active",
+        driver: "",
       });
       setErrors({});
     } catch (error) {
@@ -90,6 +94,7 @@ const AddVehicleDialog = ({ show, onClose, onAddVehicle }) => {
       license_plate: "",
       fuel_type: "petrol",
       status: "active",
+      driver: "",
     });
     setErrors({});
     onClose();
@@ -199,6 +204,25 @@ const AddVehicleDialog = ({ show, onClose, onAddVehicle }) => {
               <option value="active">Active</option>
               <option value="maintenance">Maintenance</option>
               <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="driver">Driver</label>
+            <select
+              id="driver"
+              name="driver"
+              value={formData.driver}
+              onChange={handleChange}
+            >
+              <option value="">No driver</option>
+              {staff
+                .filter((s) => s.role === "driver" || s.role === "manager")
+                .map((s) => (
+                  <option key={s.id} value={s.username}>
+                    {s.username} ({s.role})
+                  </option>
+                ))}
             </select>
           </div>
 

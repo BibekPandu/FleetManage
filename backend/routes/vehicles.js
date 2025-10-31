@@ -60,7 +60,7 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { vehicle_number, make, model, year, license_plate, fuel_type, status } = req.body;
+    const { vehicle_number, make, model, year, license_plate, fuel_type, status, driver } = req.body;
 
     // Check if vehicle number or license plate already exists
     const [existingVehicles] = await pool.execute(
@@ -77,6 +77,18 @@ router.post('/', [
       'INSERT INTO vehicles (vehicle_number, make, model, year, license_plate, fuel_type, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [vehicle_number, make, model, year, license_plate, fuel_type, status]
     );
+
+    // Optionally set driver if column exists
+    if (driver && typeof driver === 'string') {
+      try {
+        await pool.execute(
+          'UPDATE vehicles SET driver = ? WHERE id = ?',
+          [driver, result.insertId]
+        );
+      } catch (e) {
+        console.warn('Driver field not persisted on create (column may be missing):', e.message);
+      }
+    }
 
     // Get the created vehicle
     const [newVehicle] = await pool.execute(
@@ -115,7 +127,7 @@ router.put('/:id', [
     }
 
     const { id } = req.params;
-    const { vehicle_number, make, model, year, license_plate, fuel_type, status } = req.body;
+    const { vehicle_number, make, model, year, license_plate, fuel_type, status, driver } = req.body;
 
     // Check if vehicle exists
     const [existingVehicle] = await pool.execute(
@@ -142,6 +154,18 @@ router.put('/:id', [
       'UPDATE vehicles SET vehicle_number = ?, make = ?, model = ?, year = ?, license_plate = ?, fuel_type = ?, status = ? WHERE id = ?',
       [vehicle_number, make, model, year, license_plate, fuel_type, status, id]
     );
+
+    // Optionally update driver if provided
+    if (typeof driver === 'string') {
+      try {
+        await pool.execute(
+          'UPDATE vehicles SET driver = ? WHERE id = ?',
+          [driver, id]
+        );
+      } catch (e) {
+        console.warn('Driver field not persisted on update (column may be missing):', e.message);
+      }
+    }
 
     // Get the updated vehicle
     const [updatedVehicle] = await pool.execute(

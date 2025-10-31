@@ -107,6 +107,8 @@ export const VehiclesProvider = ({ children }) => {
       // Add new vehicle to the list
       setVehicles(prevVehicles => [data.vehicle, ...prevVehicles]);
       
+      // Refresh server data to include server-populated fields (e.g., driver)
+      try { await fetchVehicles(); } catch (_) {}
       // Refresh stats
       fetchStats();
       
@@ -149,6 +151,8 @@ export const VehiclesProvider = ({ children }) => {
           vehicle.id === id ? data.vehicle : vehicle
         )
       );
+      // Refresh server data to ensure latest fields
+      try { await fetchVehicles(); } catch (_) {}
       
       return data.vehicle;
     } catch (error) {

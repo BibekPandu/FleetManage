@@ -59,6 +59,9 @@ export const ExpensesProvider = ({ children }) => {
       }
       const data = await response.json();
       setExpenses((prev) => [data.expense, ...prev]);
+      try {
+        await fetchExpenses();
+      } catch (_) {}
       return data.expense;
     } catch (err) {
       setError(err.message);
@@ -87,6 +90,9 @@ export const ExpensesProvider = ({ children }) => {
       }
       const data = await response.json();
       setExpenses((prev) => prev.map((e) => (e.id === id ? data.expense : e)));
+      try {
+        await fetchExpenses();
+      } catch (_) {}
       return data.expense;
     } catch (err) {
       setError(err.message);
