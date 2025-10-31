@@ -18,6 +18,7 @@ import Settings from "./pages/Settings";
 import AuthPage from "./pages/AuthPage";
 import Expenses from "./pages/Expenses";
 import Landing from "./pages/Landing";
+import MapPage from "./pages/Map";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import useAuth from "./hooks/useAuth";
@@ -39,6 +40,7 @@ function App() {
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/fuel-prediction" element={<FuelPrediction />} />
+          <Route path="/map" element={<MapPage />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
         <Route path="*" element={<Navigate to={isAuthenticated() ? "/" : "/landing"} />} />

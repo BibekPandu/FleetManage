@@ -40,6 +40,9 @@ const Sidebar = () => {
           <li>
             <NavLink to="/expenses">Expenses</NavLink>
           </li>
+          <li>
+            <NavLink to="/map">Map</NavLink>
+          </li>
         </ul>
       </nav>
 
