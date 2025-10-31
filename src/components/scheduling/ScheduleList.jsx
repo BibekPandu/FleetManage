@@ -33,7 +33,6 @@ const ScheduleList = ({ schedules, onEdit, onDelete, canModify }) => {
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Date</th>
             <th>Vehicle</th>
             <th>Driver</th>
@@ -45,7 +44,6 @@ const ScheduleList = ({ schedules, onEdit, onDelete, canModify }) => {
         <tbody>
           {schedules.map((schedule) => (
             <tr key={schedule.id}>
-              <td>{schedule.id}</td>
               <td>{formatDate(schedule.date)}</td>
               <td>{schedule.vehicle}</td>
               <td>{schedule.driver}</td>

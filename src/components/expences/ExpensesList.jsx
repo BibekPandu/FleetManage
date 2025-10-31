@@ -23,7 +23,6 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Date</th>
             <th>Amount</th>
             <th>Category</th>
@@ -35,7 +34,6 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
         <tbody>
           {expenses.map((expense) => (
             <tr key={expense.id}>
-              <td>{expense.id}</td>
               <td>{formatDate(expense.date)}</td>
               <td>${Number(expense.amount).toFixed(2)}</td>
               <td>{expense.category}</td>

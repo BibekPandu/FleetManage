@@ -8,7 +8,6 @@ const StaffList = ({ staff, onEdit, onDelete, canModify }) => {
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Username</th>
             <th>Role</th>
             <th>Status</th>
@@ -18,7 +17,6 @@ const StaffList = ({ staff, onEdit, onDelete, canModify }) => {
         <tbody>
           {staff.map((staffMember) => (
             <tr key={staffMember.id}>
-              <td>{staffMember.id}</td>
               <td>{staffMember.username}</td>
               <td>{staffMember.role}</td>
               <td>

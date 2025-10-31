@@ -56,7 +56,6 @@ const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
             <option value="driver">Driver</option>
             <option value="mechanic">Mechanic</option>
             <option value="manager">Manager</option>
-            <option value="admin">Admin</option>
           </select>
         </div>
         <div className="form-group">
@@ -70,7 +69,9 @@ const EditStaffDialog = ({ show, onClose, staff, onEditStaff }) => {
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             Cancel
           </button>
-          <button type="submit" className="form-button">Save Changes</button>
+          <button type="submit" className="form-button">
+            Save Changes
+          </button>
         </div>
       </form>
     </Dialog>

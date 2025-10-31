@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Polyline, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 
-// Fix default marker icons path in CRA
 import marker2x from "leaflet/dist/images/marker-icon-2x.png";
 import marker1x from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -23,14 +22,73 @@ const ClickHandler = ({ onClick }) => {
 };
 
 const MapPage = () => {
-  const [start, setStart] = useState(null); // [lat, lng]
-  const [end, setEnd] = useState(null); // [lat, lng]
-  const [routeCoords, setRouteCoords] = useState([]); // [[lat, lng], ...]
-  const [selecting, setSelecting] = useState("start"); // "start" | "end"
+  const [start, setStart] = useState(null);
+  const [end, setEnd] = useState(null);
+  const [routeCoords, setRouteCoords] = useState([]);
+  const [selecting, setSelecting] = useState("start");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const center = useMemo(() => ({ lat: 27.7172, lng: 85.3240 }), []); // Kathmandu default
+  const center = useMemo(() => ({ lat: 27.7172, lng: 85.3240 }), []);
+
+  const ui = useMemo(
+    () => ({
+      bar: {
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: 12,
+      },
+      badge: (active) => ({
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "6px 10px",
+        borderRadius: 999,
+        fontSize: 13,
+        fontWeight: 600,
+        background: active ? "#eef2ff" : "#ecfeff",
+        color: active ? "#3730a3" : "#0e7490",
+        border: `1px solid ${active ? "#c7d2fe" : "#a5f3fc"}`,
+      }),
+      btn: {
+        base: {
+          padding: "8px 12px",
+          borderRadius: 8,
+          border: "1px solid #d1d5db",
+          background: "#f8fafc",
+          color: "#1f2937",
+          cursor: "pointer",
+          fontWeight: 600,
+        },
+        primary: {
+          background: "#1d4ed8",
+          borderColor: "#1d4ed8",
+          color: "#ffffff",
+        },
+        info: {
+          background: "#0ea5e9",
+          borderColor: "#0ea5e9",
+          color: "#ffffff",
+        },
+        warn: {
+          background: "#f59e0b",
+          borderColor: "#f59e0b",
+          color: "#111827",
+        },
+        outline: {
+          background: "#ffffff",
+          borderColor: "#d1d5db",
+          color: "#374151",
+        },
+        disabled: {
+          opacity: 0.6,
+          cursor: "not-allowed",
+        },
+      },
+    }),
+    []
+  );
 
   const handleMapClick = useCallback(
     (latlng) => {
@@ -82,7 +140,6 @@ const MapPage = () => {
   }, [start, end]);
 
   useEffect(() => {
-    // Auto-fetch when both points chosen
     if (start && end) {
       fetchRoute();
     }
@@ -92,18 +149,55 @@ const MapPage = () => {
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div className="dashboard-card" style={{ padding: 12 }}>
         <h2 style={{ marginTop: 0 }}>Map Routing</h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
-          <div>
-            <strong>Selection:</strong> {selecting === "start" ? "Click to set Start" : "Click to set End"}
-          </div>
-          <button className="button" onClick={() => setSelecting("start")}>Set Start</button>
-          <button className="button" onClick={() => setSelecting("end")}>Set End</button>
-          <button className="button" onClick={swapPoints} disabled={!start || !end}>Swap</button>
-          <button className="button" onClick={clearAll}>Clear</button>
-          <button className="button" onClick={fetchRoute} disabled={!start || !end || loading}>
+        <div style={ui.bar}>
+          <span style={ui.badge(selecting === "start")}>Selection: {selecting === "start" ? "Click to set Start" : "Click to set End"}</span>
+
+          <button
+            style={{ ...ui.btn.base, ...ui.btn.info }}
+            onClick={() => setSelecting("start")}
+          >
+            Set Start
+          </button>
+
+          <button
+            style={{ ...ui.btn.base, ...ui.btn.info }}
+            onClick={() => setSelecting("end")}
+          >
+            Set End
+          </button>
+
+          <button
+            style={{
+              ...ui.btn.base,
+              ...ui.btn.warn,
+              ...(!!!start || !!!end ? ui.btn.disabled : {}),
+            }}
+            onClick={swapPoints}
+            disabled={!start || !end}
+          >
+            Swap
+          </button>
+
+          <button
+            style={{ ...ui.btn.base, ...ui.btn.outline }}
+            onClick={clearAll}
+          >
+            Clear
+          </button>
+
+          <button
+            style={{
+              ...ui.btn.base,
+              ...ui.btn.primary,
+              ...(!!!start || !!!end || loading ? ui.btn.disabled : {}),
+            }}
+            onClick={fetchRoute}
+            disabled={!start || !end || loading}
+          >
             {loading ? "Finding route..." : "Find Optimal Route"}
           </button>
-          {error && <span style={{ color: "#c00" }}>{error}</span>}
+
+          {error && <span style={{ color: "#b91c1c", fontWeight: 600 }}>{error}</span>}
         </div>
         <div style={{ marginTop: 8, display: "flex", gap: 16, fontSize: 14 }}>
           <div>

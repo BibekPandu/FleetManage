@@ -15,11 +15,11 @@ export const StaffProvider = ({ children }) => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const token = localStorage.getItem("fleetfox_token");
-  // Keep hook available for future use. Not required for token-based checks now.
+  const { user } = useAuth();
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "/api";
 
   const fetchStaff = async () => {
+    const token = localStorage.getItem("fleetfox_token");
     if (!token) return;
 
     setLoading(true);
@@ -51,6 +51,7 @@ export const StaffProvider = ({ children }) => {
     if (process.env.NODE_ENV !== "production") {
       console.log("DB  POST", staffData);
     }
+    const token = localStorage.getItem("fleetfox_token");
     if (!token) return;
 
     setLoading(true);
@@ -84,6 +85,7 @@ export const StaffProvider = ({ children }) => {
   };
 
   const updateStaff = async (id, staffData) => {
+    const token = localStorage.getItem("fleetfox_token");
     if (!token) return;
 
     setLoading(true);
@@ -117,6 +119,7 @@ export const StaffProvider = ({ children }) => {
   };
 
   const deleteStaff = async (id) => {
+    const token = localStorage.getItem("fleetfox_token");
     if (!token) return;
 
     setLoading(true);
@@ -147,6 +150,7 @@ export const StaffProvider = ({ children }) => {
   };
 
   const getStaffById = async (id) => {
+    const token = localStorage.getItem("fleetfox_token");
     if (!token) return null;
 
     try {
@@ -171,10 +175,10 @@ export const StaffProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (token) {
+    if (user) {
       fetchStaff();
     }
-  }, [token]);
+  }, [user]);
 
   const value = {
     staff,

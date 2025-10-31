@@ -57,6 +57,23 @@ router.post(
         [username, email, hashedPassword, role]
       );
 
+      if (role === "driver" || role === "manager") {
+        try {
+          const [existingStaff] = await pool.execute(
+            "SELECT id FROM staff WHERE username = ?",
+            [username]
+          );
+          if (existingStaff.length === 0) {
+            await pool.execute(
+              "INSERT INTO staff (username, role, status) VALUES (?, ?, ?)",
+              [username, role, "active"]
+            );
+          }
+        } catch (e) {
+          console.error("Staff sync (register) error:", e);
+        }
+      }
+
       res.status(201).json({
         message: "User registered successfully",
         user: {
@@ -147,6 +164,23 @@ router.post(
 
       if (process.env.NODE_ENV !== "production") {
         console.log("✅ Login successful for user:", identifier);
+      }
+
+      if (user.role === "driver" || user.role === "manager") {
+        try {
+          const [existingStaff] = await pool.execute(
+            "SELECT id FROM staff WHERE username = ?",
+            [user.username]
+          );
+          if (existingStaff.length === 0) {
+            await pool.execute(
+              "INSERT INTO staff (username, role, status) VALUES (?, ?, ?)",
+              [user.username, user.role, "active"]
+            );
+          }
+        } catch (e) {
+          console.error("Staff sync error:", e);
+        }
       }
 
       res.json({

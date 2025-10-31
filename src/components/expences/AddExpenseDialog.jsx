@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../../styles/Dialog.css";
 import "../../styles/Form.css";
 import "./AddExpenseDialog.css";
+import { useVehicles } from "../../context/VehiclesContext";
 
 function toInputDateString(dateString) {
   if (!dateString) return "";
@@ -24,6 +25,7 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
     vehicle_id: "",
   });
   const [loading, setLoading] = useState(false);
+  const { vehicles } = useVehicles();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -87,14 +89,23 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
           </div>
           <div className="form-group">
             <label htmlFor="category">Category</label>
-            <input
+            <select
               id="category"
               name="category"
-              type="text"
               value={formData.category}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="" disabled>
+                Select category
+              </option>
+              <option value="Fuel">Fuel</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Insurance">Insurance</option>
+              <option value="Toll">Toll</option>
+              <option value="Parking">Parking</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="description">Description</label>
@@ -106,14 +117,23 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="vehicle_id">Vehicle ID</label>
-            <input
+            <label htmlFor="vehicle_id">Vehicle</label>
+            <select
               id="vehicle_id"
               name="vehicle_id"
-              type="number"
               value={formData.vehicle_id}
               onChange={handleChange}
-            />
+            >
+              <option value="">No vehicle</option>
+              {vehicles.map((v) => {
+                const label = v.license_plate || v.vehicle_number || `${v.make || ""} ${v.model || ""}`.trim();
+                return (
+                  <option key={v.id} value={v.id}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
           </div>
           <div className="dialog-actions">
             <button

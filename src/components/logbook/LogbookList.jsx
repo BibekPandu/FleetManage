@@ -7,19 +7,17 @@ const LogbookList = ({ entries, onEdit, onDelete, canModify }) => {
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Date</th>
             <th>Vehicle</th>
             <th>Driver</th>
-            <th>Description</th>
+            <th>Distance</th>
             {canModify && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
           {entries.map((entry) => (
             <tr key={entry.id}>
-              <td>{entry.id}</td>
-              <td>{entry.date}</td>
+              <td>{entry.date ? new Date(entry.date).toLocaleDateString() : ""}</td>
               <td>{entry.vehicle}</td>
               <td>{entry.driver}</td>
               <td>{entry.description}</td>

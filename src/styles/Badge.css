@@ -26,4 +26,14 @@
 .badge-completed {
   background-color: #17a2b833; /* Teal with opacity */
   color: #138496; /* Darker teal */
-} 
+}
+
+.badge-in-progress {
+  background-color: #0d6efd33; /* Blue with opacity */
+  color: #0a58ca; /* Darker blue */
+}
+
+.badge-cancelled {
+  background-color: #dc354533; /* Red with opacity */
+  color: #b02a37; /* Darker red */
+}

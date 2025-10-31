@@ -3,6 +3,8 @@ import "../../styles/Dialog.css";
 import "../../styles/Form.css";
 import "./AddScheduleDialog.css";
 import { useSchedules } from "../../context/SchedulesContext";
+import { useVehicles } from "../../context/VehiclesContext";
+import { useStaff } from "../../context/StaffContext";
 
 const AddScheduleDialog = ({ show, onClose, onAddSchedule }) => {
   const [formData, setFormData] = useState({
@@ -14,6 +16,8 @@ const AddScheduleDialog = ({ show, onClose, onAddSchedule }) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const { vehicles } = useVehicles();
+  const { staff } = useStaff();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -67,28 +71,48 @@ const AddScheduleDialog = ({ show, onClose, onAddSchedule }) => {
 
           <div className="form-group">
             <label htmlFor="vehicle">Vehicle</label>
-            <input
+            <select
               id="vehicle"
               name="vehicle"
-              type="text"
               value={formData.vehicle}
               onChange={handleChange}
-              placeholder="e.g., Truck-001, Van-002"
               required
-            />
+            >
+              <option value="" disabled>
+                Select vehicle
+              </option>
+              {vehicles.map((v) => {
+                const label = v.license_plate || v.vehicle_number || `${v.make || ""} ${v.model || ""}`.trim();
+                const value = label;
+                return (
+                  <option key={v.id} value={value}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           <div className="form-group">
             <label htmlFor="driver">Driver</label>
-            <input
+            <select
               id="driver"
               name="driver"
-              type="text"
               value={formData.driver}
               onChange={handleChange}
-              placeholder="e.g., John Doe, Jane Smith"
               required
-            />
+            >
+              <option value="" disabled>
+                Select driver
+              </option>
+              {staff
+                .filter((s) => s.role === "driver" || s.role === "manager")
+                .map((s) => (
+                  <option key={s.id} value={s.username}>
+                    {s.username} ({s.role})
+                  </option>
+                ))}
+            </select>
           </div>
 
           <div className="form-group">

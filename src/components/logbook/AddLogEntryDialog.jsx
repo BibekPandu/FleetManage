@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "../../styles/Dialog.css";
 import "../../styles/Form.css";
 import "./AddLogEntryDialog.css";
+import { useVehicles } from "../../context/VehiclesContext";
+import { useStaff } from "../../context/StaffContext";
 
 const AddLogEntryDialog = ({ show, onClose, onAddEntry }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +12,8 @@ const AddLogEntryDialog = ({ show, onClose, onAddEntry }) => {
     driver: "",
     description: "",
   });
+  const { vehicles } = useVehicles();
+  const { staff } = useStaff();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,33 +46,60 @@ const AddLogEntryDialog = ({ show, onClose, onAddEntry }) => {
           </div>
           <div className="form-group">
             <label htmlFor="vehicle">Vehicle</label>
-            <input
+            <select
               id="vehicle"
               name="vehicle"
-              type="text"
               value={formData.vehicle}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="" disabled>
+                Select vehicle
+              </option>
+              {vehicles.map((v) => {
+                const label = v.license_plate || v.vehicle_number || `${v.make || ""} ${v.model || ""}`.trim();
+                const value = label;
+                return (
+                  <option key={v.id} value={value}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="driver">Driver</label>
-            <input
+            <select
               id="driver"
               name="driver"
-              type="text"
               value={formData.driver}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="" disabled>
+                Select driver
+              </option>
+              {staff
+                .filter((s) => s.role === "driver" || s.role === "manager")
+                .map((s) => (
+                  <option key={s.id} value={s.username}>
+                    {s.username} ({s.role})
+                  </option>
+                ))}
+            </select>
           </div>
           <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
+            <label htmlFor="description">Distance (km)</label>
+            <input
               id="description"
               name="description"
+              type="number"
+              min="0"
+              step="0.1"
+              placeholder="e.g. 12.5"
               value={formData.description}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="dialog-actions">
