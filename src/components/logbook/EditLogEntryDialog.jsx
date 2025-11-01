@@ -90,10 +90,10 @@ const EditLogEntryDialog = ({ show, onClose, entry, onEditEntry }) => {
               Select driver
             </option>
             {staff
-              .filter((s) => s.role === "driver" || s.role === "manager")
+              .filter((s) => s.role === "driver")
               .map((s) => (
                 <option key={s.id} value={s.username}>
-                  {s.username} ({s.role})
+                  {s.username}
                 </option>
               ))}
           </select>

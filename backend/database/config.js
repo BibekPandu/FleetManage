@@ -63,6 +63,23 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Ensure 'driver' column exists on vehicles table for driver assignment
+    try {
+      const [driverCol] = await connection.execute(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+          AND TABLE_NAME = 'vehicles' 
+          AND COLUMN_NAME = 'driver'
+      `);
+      if (driverCol.length === 0) {
+        await connection.execute(`
+          ALTER TABLE vehicles ADD COLUMN driver VARCHAR(100) NULL AFTER status
+        `);
+      }
+    } catch (e) {
+      console.warn("⚠️ Unable to verify/add 'driver' column on vehicles table:", e.message);
+    }
+
     // Create staff table
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS staff (

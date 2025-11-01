@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "../../styles/Dialog.css";
 import "../../styles/Form.css";
 import "./EditScheduleDialog.css";
+import { useVehicles } from "../../context/VehiclesContext";
+import { useStaff } from "../../context/StaffContext";
 
 const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +15,8 @@ const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const { vehicles } = useVehicles();
+  const { staff } = useStaff();
 
   // Helper function to format ISO date string to YYYY-MM-DD
   const formatIsoDateToInputDate = (isoDateString) => {
@@ -86,28 +90,48 @@ const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {
 
           <div className="form-group">
             <label htmlFor="vehicle">Vehicle</label>
-            <input
+            <select
               id="vehicle"
               name="vehicle"
-              type="text"
               value={formData.vehicle}
               onChange={handleChange}
-              placeholder="e.g., Truck-001, Van-002"
               required
-            />
+            >
+              <option value="" disabled>
+                Select vehicle
+              </option>
+              {vehicles.map((v) => {
+                const label = v.license_plate || v.vehicle_number || `${v.make || ""} ${v.model || ""}`.trim();
+                const value = label;
+                return (
+                  <option key={v.id} value={value}>
+                    {label}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           <div className="form-group">
             <label htmlFor="driver">Driver</label>
-            <input
+            <select
               id="driver"
               name="driver"
-              type="text"
               value={formData.driver}
               onChange={handleChange}
-              placeholder="e.g., John Doe, Jane Smith"
               required
-            />
+            >
+              <option value="" disabled>
+                Select driver
+              </option>
+              {staff
+                .filter((s) => s.role === "driver")
+                .map((s) => (
+                  <option key={s.id} value={s.username}>
+                    {s.username}
+                  </option>
+                ))}
+            </select>
           </div>
 
           <div className="form-group">

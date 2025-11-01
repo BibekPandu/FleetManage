@@ -8,6 +8,18 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
     return new Date(date).toLocaleDateString();
   };
 
+  const formatRupees = (amount) => {
+    const num = Number(amount);
+    if (isNaN(num)) return "Rs. 0.00";
+    return `Rs. ${num.toFixed(2)}`;
+  };
+
+  const renderCategory = (category) => {
+    const key = String(category || "").toLowerCase();
+    const className = `category-badge category-${key}`;
+    return <span className={className}>{category}</span>;
+  };
+
   if (expenses.length === 0) {
     return (
       <div className="table-container">
@@ -35,8 +47,8 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
           {expenses.map((expense) => (
             <tr key={expense.id}>
               <td>{formatDate(expense.date)}</td>
-              <td>${Number(expense.amount).toFixed(2)}</td>
-              <td>{expense.category}</td>
+              <td>{formatRupees(expense.amount)}</td>
+              <td>{renderCategory(expense.category)}</td>
               <td>{expense.description}</td>
               <td>
                 {expense.make

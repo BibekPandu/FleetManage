@@ -4,3 +4,21 @@
   padding: 2rem 0;
   font-size: 1.1rem;
 }
+
+/* Category badge styling */
+.category-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f2937; /* gray-800 */
+  background-color: #e5e7eb; /* gray-200 */
+}
+
+/* Example category-specific colors (extend as needed) */
+.category-fuel { background-color: #fee2e2; color: #991b1b; }
+.category-maintenance { background-color: #dbeafe; color: #1e3a8a; }
+.category-toll { background-color: #fef3c7; color: #92400e; }
+.category-parking { background-color: #e0f2fe; color: #0c4a6e; }
+.category-other { background-color: #e5e7eb; color: #1f2937; }
