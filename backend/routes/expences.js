@@ -9,7 +9,13 @@ const router = express.Router();
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const [expenses] = await pool.execute(`
-      SELECT e.*, v.make, v.model, v.license_plate FROM expenses e
+      SELECT 
+        e.*, 
+        v.make, 
+        v.model, 
+        v.license_plate, 
+        v.driver AS vehicle_driver
+      FROM expenses e
       LEFT JOIN vehicles v ON e.vehicle_id = v.id
       ORDER BY e.date DESC, e.created_at DESC
     `);
@@ -24,7 +30,18 @@ router.get("/", authenticateToken, async (req, res) => {
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const [expenses] = await pool.execute("SELECT * FROM expenses WHERE id = ?", [id]);
+    const [expenses] = await pool.execute(
+      `SELECT 
+         e.*, 
+         v.make, 
+         v.model, 
+         v.license_plate, 
+         v.driver AS vehicle_driver
+       FROM expenses e 
+       LEFT JOIN vehicles v ON e.vehicle_id = v.id 
+       WHERE e.id = ?`,
+      [id]
+    );
     if (expenses.length === 0) {
       return res.status(404).json({ message: "Expense not found" });
     }
@@ -44,6 +61,7 @@ router.post(
     body("amount").isDecimal({ min: 0.01 }).withMessage("Amount is required"),
     body("category").notEmpty().withMessage("Category is required"),
     body("description").optional().isString().withMessage("Description must be a string"),
+    body("driver").optional().isString().withMessage("Driver must be a string"),
     body("vehicle_id").optional().custom((value) => {
       if (value === null || value === undefined || value === "") return true;
       if (isNaN(Number(value))) throw new Error("Vehicle ID must be a number or blank");
@@ -57,7 +75,7 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      let { date, amount, category, description, vehicle_id } = req.body;
+      let { date, amount, category, description, vehicle_id, driver } = req.body;
       vehicle_id = vehicle_id === "" || vehicle_id === undefined ? null : vehicle_id;
       // If vehicle_id is provided, check if it exists
       if (vehicle_id) {
@@ -68,8 +86,8 @@ router.post(
       }
       // Insert new expense
       const [result] = await pool.execute(
-        "INSERT INTO expenses (date, amount, category, description, vehicle_id) VALUES (?, ?, ?, ?, ?)",
-        [date, amount, category, description || null, vehicle_id]
+        "INSERT INTO expenses (date, amount, category, description, vehicle_id, driver) VALUES (?, ?, ?, ?, ?, ?)",
+        [date, amount, category, description || null, vehicle_id, driver || null]
       );
       // Get the created expense
       const [newExpense] = await pool.execute("SELECT * FROM expenses WHERE id = ?", [result.insertId]);
@@ -123,8 +141,8 @@ router.put(
       }
       // Update expense
       await pool.execute(
-        "UPDATE expenses SET date = ?, amount = ?, category = ?, description = ?, vehicle_id = ? WHERE id = ?",
-        [date, amount, category, description || null, vehicle_id, id]
+        "UPDATE expenses SET date = ?, amount = ?, category = ?, description = ?, vehicle_id = ?, driver = ? WHERE id = ?",
+        [date, amount, category, description || null, vehicle_id, driver || null, id]
       );
       // Get the updated expense
       const [updatedExpense] = await pool.execute("SELECT * FROM expenses WHERE id = ?", [id]);

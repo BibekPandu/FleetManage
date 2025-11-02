@@ -14,6 +14,13 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
     return `Rs. ${num.toFixed(2)}`;
   };
 
+  const renderDriver = (expense) => {
+    const driver = expense.driver || expense.vehicle_driver;
+    if (!driver) return "-";
+    if (typeof driver === "object" && driver.username) return driver.username;
+    return String(driver);
+  };
+
   const renderCategory = (category) => {
     const key = String(category || "").toLowerCase();
     const className = `category-badge category-${key}`;
@@ -40,6 +47,7 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
             <th>Category</th>
             <th>Description</th>
             <th>Vehicle</th>
+            <th>Driver</th>
             {canModify && <th>Actions</th>}
           </tr>
         </thead>
@@ -47,13 +55,23 @@ const ExpensesList = ({ expenses, onEdit, onDelete, canModify }) => {
           {expenses.map((expense) => (
             <tr key={expense.id}>
               <td>{formatDate(expense.date)}</td>
-              <td>{formatRupees(expense.amount)}</td>
+              <td className="amount-cell">{formatRupees(expense.amount)}</td>
               <td>{renderCategory(expense.category)}</td>
               <td>{expense.description}</td>
               <td>
                 {expense.make
-                  ? `${expense.make} ${expense.model} (${expense.license_plate})`
-                  : "-"}
+                  ? (
+                    <span className="vehicle-pill">{`${expense.make} ${expense.model} (${expense.license_plate})`}</span>
+                  ) : (
+                    "-"
+                  )}
+              </td>
+              <td>
+                {renderDriver(expense) !== "-" ? (
+                  <span className="driver-chip">{renderDriver(expense)}</span>
+                ) : (
+                  "-"
+                )}
               </td>
               {canModify && (
                 <td>

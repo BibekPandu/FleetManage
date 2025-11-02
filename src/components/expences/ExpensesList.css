@@ -22,3 +22,38 @@
 .category-toll { background-color: #fef3c7; color: #92400e; }
 .category-parking { background-color: #e0f2fe; color: #0c4a6e; }
 .category-other { background-color: #e5e7eb; color: #1f2937; }
+
+/* Amount alignment */
+.amount-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Vehicle pill */
+.vehicle-pill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  background: #eef2ff; /* indigo-50 */
+  color: #3730a3;      /* indigo-800 */
+  border: 1px solid #c7d2fe; /* indigo-200 */
+  font-size: 0.85rem;
+}
+
+/* Driver chip */
+.driver-chip {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: #ecfeff; /* cyan-50 */
+  color: #155e75;      /* cyan-800 */
+  border: 1px solid #a5f3fc; /* cyan-200 */
+  font-size: 0.85rem;
+}
+
+/* Actions (inherit buttons styling from Table.css, just adjust spacing if needed) */
+.table-container td .btn-edit,
+.table-container td .btn-delete {
+  padding: 6px 10px;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../../styles/Dialog.css";
 import "../../styles/Form.css";
 import "./EditScheduleDialog.css";
@@ -14,29 +14,41 @@ const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {
     status: "scheduled",
   });
 
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [loading, setLoading] = useState(false);
   const { vehicles } = useVehicles();
   const { staff } = useStaff();
 
+  // Format vehicle label consistently
+  const formatVehicleLabel = (vehicle) => {
+    if (!vehicle) return "";
+    return (
+      vehicle.license_plate ||
+      vehicle.vehicle_number ||
+      `${vehicle.make || ""} ${vehicle.model || ""}`
+    ).trim();
+  };
+
   // Helper function to format ISO date string to YYYY-MM-DD
   const formatIsoDateToInputDate = (isoDateString) => {
     if (!isoDateString) return "";
-    // Create a Date object from the ISO string
     const date = new Date(isoDateString);
-    // Get year, month, and day
     const year = date.getFullYear();
-    // Month is 0-indexed, so add 1 and pad with '0' if less than 10
     const month = String(date.getMonth() + 1).padStart(2, "0");
-    // Day of the month, pad with '0' if less than 10
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
+  // Get available drivers (filtered by role)
+  const availableDrivers = staff.filter(
+    (s) => s.role === "driver" || s.role === "manager"
+  );
+
+  // Initialize form data when schedule prop changes
   useEffect(() => {
     if (schedule) {
       setFormData({
-        // Apply the formatting here
-        date: formatIsoDateToInputDate(schedule.date), // <--- MODIFIED LINE
+        date: formatIsoDateToInputDate(schedule.date),
         vehicle: schedule.vehicle || "",
         driver: schedule.driver || "",
         task: schedule.task || "",
@@ -44,6 +56,57 @@ const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {
       });
     }
   }, [schedule]);
+
+  // Handle vehicle selection
+  const selectVehicle = (vehicle) => {
+    if (!vehicle) return;
+
+    const vehicleLabel = formatVehicleLabel(vehicle);
+
+    // Find the driver assigned to this vehicle
+    let driver = "";
+    if (vehicle.driver) {
+      if (typeof vehicle.driver === "string") {
+        driver = vehicle.driver;
+      } else if (vehicle.driver.username) {
+        driver = vehicle.driver.username;
+      } else if (vehicle.driver) {
+        const driverObj = staff.find((s) => s.id === vehicle.driver);
+        driver = driverObj ? driverObj.username : "";
+      }
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      vehicle: vehicleLabel,
+      driver: driver,
+      ...(driver ? {} : { driver: "" }),
+    }));
+
+    setOpenDropdown(null);
+  };
+
+  // Handle driver selection
+  const selectDriver = (username) => {
+    if (!username) return;
+
+    // Find the vehicle assigned to this driver
+    const driverVehicle = vehicles.find(
+      (v) =>
+        v.driver &&
+        ((typeof v.driver === "string" && v.driver === username) ||
+          v.driver.username === username ||
+          v.driver === username)
+    );
+
+    setFormData((prev) => ({
+      ...prev,
+      driver: username,
+      vehicle: driverVehicle ? formatVehicleLabel(driverVehicle) : prev.vehicle,
+    }));
+
+    setOpenDropdown(null);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,20 +118,21 @@ const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {
     setLoading(true);
 
     try {
-      // When sending the data back, ensure your backend can handle the format you send.
-      // If your backend expects the ISO format, you might need to convert it back here
-      // or ensure it can handle the YYYY-MM-DD format and convert it internally.
-      // For now, we pass the formData directly, assuming your backend is flexible
-      // or will be updated to handle YYYY-MM-DD for date inputs.
       await onEditSchedule(schedule.id, formData);
+      onClose();
     } catch (error) {
-      // Error is handled by parent
+      console.error("Error updating schedule:", error);
+      alert("Error updating schedule. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   if (!show) return null;
+
+  // Show full lists in dropdowns; highlight the current selection in the menu
+  const filteredVehicles = vehicles;
+  const filteredDrivers = availableDrivers;
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -82,56 +146,103 @@ const EditScheduleDialog = ({ show, onClose, schedule, onEditSchedule }) => {
               id="date"
               name="date"
               type="date"
-              value={formData.date} // This will now be YYYY-MM-DD
+              value={formData.date}
               onChange={handleChange}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="vehicle">Vehicle</label>
-            <select
-              id="vehicle"
-              name="vehicle"
-              value={formData.vehicle}
-              onChange={handleChange}
-              required
-            >
-              <option value="" disabled>
-                Select vehicle
-              </option>
-              {vehicles.map((v) => {
-                const label = v.license_plate || v.vehicle_number || `${v.make || ""} ${v.model || ""}`.trim();
-                const value = label;
-                return (
-                  <option key={v.id} value={value}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
+            <label>Vehicle</label>
+            <div className="custom-select" onBlur={() => setOpenDropdown(null)}>
+              <button
+                type="button"
+                className="custom-select-toggle"
+                aria-haspopup="listbox"
+                aria-expanded={openDropdown === "vehicle"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpenDropdown(
+                    openDropdown === "vehicle" ? null : "vehicle"
+                  );
+                }}
+              >
+                {formData.vehicle || "Select vehicle"}
+                <span className="caret" />
+              </button>
+              {openDropdown === "vehicle" && (
+                <div
+                  className="custom-select-menu"
+                  role="listbox"
+                  style={{ maxHeight: "180px", overflowY: "auto" }}
+                >
+                  {filteredVehicles.length > 0 ? (
+                    filteredVehicles.map((v) => (
+                      <div
+                        key={v.id}
+                        role="option"
+                        className={`custom-select-option${
+                          formData.vehicle === formatVehicleLabel(v)
+                            ? " selected"
+                            : ""
+                        }`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => selectVehicle(v)}
+                      >
+                        {formatVehicleLabel(v)}
+                        {v.driver ? ` — ${v.driver}` : ""}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-options">No vehicles available</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="driver">Driver</label>
-            <select
-              id="driver"
-              name="driver"
-              value={formData.driver}
-              onChange={handleChange}
-              required
-            >
-              <option value="" disabled>
-                Select driver
-              </option>
-              {staff
-                .filter((s) => s.role === "driver")
-                .map((s) => (
-                  <option key={s.id} value={s.username}>
-                    {s.username}
-                  </option>
-                ))}
-            </select>
+            <label>Driver</label>
+            <div className="custom-select" onBlur={() => setOpenDropdown(null)}>
+              <button
+                type="button"
+                className="custom-select-toggle"
+                aria-haspopup="listbox"
+                aria-expanded={openDropdown === "driver"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpenDropdown(openDropdown === "driver" ? null : "driver");
+                }}
+              >
+                {formData.driver || "Select driver"}
+                <span className="caret" />
+              </button>
+              {openDropdown === "driver" && (
+                <div
+                  className="custom-select-menu"
+                  role="listbox"
+                  style={{ maxHeight: "180px", overflowY: "auto" }}
+                >
+                  {filteredDrivers.length > 0 ? (
+                    filteredDrivers.map((s) => (
+                      <div
+                        key={s.id}
+                        role="option"
+                        className={`custom-select-option${
+                          formData.driver === s.username ? " selected" : ""
+                        }`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => selectDriver(s.username)}
+                      >
+                        {s.username} ({s.role})
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-options">No drivers available</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="form-group">

@@ -159,11 +159,29 @@ const initializeDatabase = async () => {
         category VARCHAR(50) NOT NULL,
         description TEXT,
         vehicle_id INT,
+        driver VARCHAR(100) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL
       )
     `);
+
+    // Ensure 'driver' column exists on expenses (for persisting selected driver)
+    try {
+      const [expDriverCol] = await connection.execute(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+          AND TABLE_NAME = 'expenses' 
+          AND COLUMN_NAME = 'driver'
+      `);
+      if (expDriverCol.length === 0) {
+        await connection.execute(`
+          ALTER TABLE expenses ADD COLUMN driver VARCHAR(100) NULL AFTER vehicle_id
+        `);
+      }
+    } catch (e) {
+      console.warn("⚠️ Unable to verify/add 'driver' column on expenses table:", e.message);
+    }
 
     console.log("✅ Database tables created successfully!");
     connection.release();

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import "../../styles/Dialog.css";
 import "../../styles/Form.css";
 import "./AddExpenseDialog.css";
+import "../scheduling/EditScheduleDialog.css";
 import { useVehicles } from "../../context/VehiclesContext";
+import { useStaff } from "../../context/StaffContext";
 
 function toInputDateString(dateString) {
   if (!dateString) return "";
@@ -23,9 +25,26 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
     category: "",
     description: "",
     vehicle_id: "",
+    driver: "",
   });
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [loading, setLoading] = useState(false);
   const { vehicles } = useVehicles();
+  const { staff } = useStaff();
+
+  const formatVehicleLabel = (vehicle) => {
+    if (!vehicle) return "";
+    return (
+      vehicle.license_plate ||
+      vehicle.vehicle_number ||
+      `${vehicle.make || ""} ${vehicle.model || ""}`
+    ).trim();
+  };
+
+  const availableDrivers = useMemo(
+    () => staff.filter((s) => s.role === "driver" || s.role === "manager"),
+    [staff]
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,6 +59,7 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
         ...formData,
         date: toInputDateString(formData.date),
         vehicle_id: cleanVehicleId(formData.vehicle_id),
+        // driver is not persisted in backend expenses; keep it UI-only
       });
       setFormData({
         date: "",
@@ -47,6 +67,7 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
         category: "",
         description: "",
         vehicle_id: "",
+        driver: "",
       });
     } catch (error) {
       alert("Error adding expense.");
@@ -57,6 +78,49 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
   };
 
   if (!show) return null;
+
+  // Resolve selected vehicle object and label
+  const selectedVehicle = vehicles.find((v) => String(v.id) === String(formData.vehicle_id));
+  const selectedVehicleLabel = selectedVehicle ? formatVehicleLabel(selectedVehicle) : "";
+
+  // Handlers to link selections
+  const selectVehicle = (vehicle) => {
+    if (!vehicle) return;
+    let driver = "";
+    if (vehicle.driver) {
+      if (typeof vehicle.driver === "string") {
+        driver = vehicle.driver;
+      } else if (vehicle.driver.username) {
+        driver = vehicle.driver.username;
+      } else {
+        const driverObj = staff.find((s) => s.id === vehicle.driver);
+        driver = driverObj ? driverObj.username : "";
+      }
+    }
+    setFormData((prev) => ({
+      ...prev,
+      vehicle_id: vehicle.id,
+      driver: driver || "",
+    }));
+    setOpenDropdown(null);
+  };
+
+  const selectDriver = (username) => {
+    if (!username) return;
+    const driverVehicle = vehicles.find(
+      (v) =>
+        v.driver &&
+        ((typeof v.driver === "string" && v.driver === username) ||
+          v.driver?.username === username ||
+          v.driver === username)
+    );
+    setFormData((prev) => ({
+      ...prev,
+      driver: username,
+      vehicle_id: driverVehicle ? driverVehicle.id : prev.vehicle_id,
+    }));
+    setOpenDropdown(null);
+  };
 
   return (
     <div className="dialog-overlay" onClick={onClose}>
@@ -117,23 +181,79 @@ const AddExpenseDialog = ({ show, onClose, onAddExpense }) => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="vehicle_id">Vehicle</label>
-            <select
-              id="vehicle_id"
-              name="vehicle_id"
-              value={formData.vehicle_id}
-              onChange={handleChange}
-            >
-              <option value="">No vehicle</option>
-              {vehicles.map((v) => {
-                const label = v.license_plate || v.vehicle_number || `${v.make || ""} ${v.model || ""}`.trim();
-                return (
-                  <option key={v.id} value={v.id}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
+            <label>Vehicle</label>
+            <div className="custom-select" onBlur={() => setOpenDropdown(null)}>
+              <button
+                type="button"
+                className="custom-select-toggle"
+                aria-haspopup="listbox"
+                aria-expanded={openDropdown === "vehicle"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpenDropdown(openDropdown === "vehicle" ? null : "vehicle");
+                }}
+              >
+                {selectedVehicleLabel || "Select vehicle"}
+                <span className="caret" />
+              </button>
+              {openDropdown === "vehicle" && (
+                <div className="custom-select-menu" role="listbox" style={{ maxHeight: "180px", overflowY: "auto" }}>
+                  {vehicles.length > 0 ? (
+                    vehicles.map((v) => (
+                      <div
+                        key={v.id}
+                        role="option"
+                        className={`custom-select-option${String(formData.vehicle_id) === String(v.id) ? " selected" : ""}`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => selectVehicle(v)}
+                      >
+                        {formatVehicleLabel(v)}{v.driver ? ` — ${typeof v.driver === "object" ? v.driver.username : v.driver}` : ""}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-options">No vehicles available</div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Driver</label>
+            <div className="custom-select" onBlur={() => setOpenDropdown(null)}>
+              <button
+                type="button"
+                className="custom-select-toggle"
+                aria-haspopup="listbox"
+                aria-expanded={openDropdown === "driver"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpenDropdown(openDropdown === "driver" ? null : "driver");
+                }}
+              >
+                {formData.driver || "Select driver"}
+                <span className="caret" />
+              </button>
+              {openDropdown === "driver" && (
+                <div className="custom-select-menu" role="listbox" style={{ maxHeight: "180px", overflowY: "auto" }}>
+                  {availableDrivers.length > 0 ? (
+                    availableDrivers.map((s) => (
+                      <div
+                        key={s.id}
+                        role="option"
+                        className={`custom-select-option${formData.driver === s.username ? " selected" : ""}`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => selectDriver(s.username)}
+                      >
+                        {s.username} ({s.role})
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-options">No drivers available</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
           <div className="dialog-actions">
             <button
