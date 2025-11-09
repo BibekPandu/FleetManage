@@ -7,7 +7,8 @@ import "./RoundRobinScheduler.css";
 const RoundRobinScheduler = () => {
   const { vehicles } = useVehicles();
   const { staff } = useStaff();
-  const { addSchedule } = useSchedules();
+  const { schedules, fetchSchedules } = useSchedules();
+  const [fetchedSchedules, setFetchedSchedules] = useState([]);
   const [vehicleSchedule, setVehicleSchedule] = useState([]);
   const [staffSchedule, setStaffSchedule] = useState([]);
   const [currentVehicleIndex, setCurrentVehicleIndex] = useState(0);
@@ -16,8 +17,7 @@ const RoundRobinScheduler = () => {
   const [numDays, setNumDays] = useState(7);
   const [includeWeekends, setIncludeWeekends] = useState(false);
   const [defaultTask, setDefaultTask] = useState("Regular Duty Assignment");
-  const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
+  // No saving from Reports
 
   // Initialize schedule date to today
   useEffect(() => {
@@ -29,6 +29,41 @@ const RoundRobinScheduler = () => {
     setScheduleDate(dateString);
   }, []);
 
+  // Ensure latest schedules are loaded when Reports opens
+  useEffect(() => {
+    fetchSchedules && fetchSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Reports: schedules loaded:", Array.isArray(schedules) ? schedules.length : 0);
+    }
+  }, [schedules]);
+
+  // Fallback: directly fetch schedules if context has none
+  useEffect(() => {
+    const run = async () => {
+      try {
+        if (Array.isArray(schedules) && schedules.length > 0) {
+          setFetchedSchedules([]);
+          return;
+        }
+        const token = localStorage.getItem('fleetfox_token');
+        if (!token) return;
+        const base = process.env.REACT_APP_API_BASE_URL || '/api';
+        const resp = await fetch(`${base}/schedules`, {
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (Array.isArray(data.schedules)) setFetchedSchedules(data.schedules);
+      } catch (_) {}
+    };
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedules]);
+
   // Helper function to get today's date string
   const getTodayString = () => {
     const today = new Date();
@@ -37,6 +72,15 @@ const RoundRobinScheduler = () => {
     const day = String(today.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  // Persisted schedules from backend (display all, sorted by date)
+  const persistedServicing = useMemo(() => {
+    const source = Array.isArray(schedules) && schedules.length > 0 ? schedules : fetchedSchedules;
+    if (!Array.isArray(source)) return [];
+    const list = [...source];
+    list.sort((a, b) => new Date(a.date) - new Date(b.date));
+    return list;
+  }, [schedules, fetchedSchedules]);
 
   // Helper function to safely create dates
   const createSafeDate = (dateString) => {
@@ -85,23 +129,22 @@ const RoundRobinScheduler = () => {
     const schedule = [];
     const startDate = createSafeDate(scheduleDate);
 
-    // Generate schedule for requested days
-    for (let day = 0; day < Math.max(1, Number(numDays) || 0); day++) {
+    // Generate servicing schedule at 3-month intervals (next 4 occurrences)
+    const occurrences = 4;
+    for (let i = 0; i < occurrences; i++) {
       try {
         const currentDate = new Date(startDate);
-        currentDate.setDate(startDate.getDate() + day);
+        // Add i * 3 months to the start date
+        currentDate.setMonth(startDate.getMonth() + i * 3);
 
         // Validate the date
         if (isNaN(currentDate.getTime())) {
-          console.error("Invalid date generated for day:", day);
+          console.error("Invalid date generated for occurrence:", i);
           continue;
         }
 
-        // Skip weekends (Saturday = 6, Sunday = 0) when opted out
-        if (!includeWeekends && (currentDate.getDay() === 0 || currentDate.getDay() === 6)) continue;
-
         const vehicleIndex =
-          (currentVehicleIndex + day) % activeVehicles.length;
+          (currentVehicleIndex + i) % activeVehicles.length;
         const vehicle = activeVehicles[vehicleIndex];
 
         schedule.push({
@@ -113,7 +156,7 @@ const RoundRobinScheduler = () => {
           type: "servicing",
         });
       } catch (error) {
-        console.error("Error generating vehicle schedule for day:", day, error);
+        console.error("Error generating vehicle schedule for occurrence:", i, error);
         continue;
       }
     }
@@ -144,7 +187,11 @@ const RoundRobinScheduler = () => {
         }
 
         // Skip weekends when opted out
-        if (!includeWeekends && (currentDate.getDay() === 0 || currentDate.getDay() === 6)) continue;
+        if (
+          !includeWeekends &&
+          (currentDate.getDay() === 0 || currentDate.getDay() === 6)
+        )
+          continue;
 
         const staffIndex = (currentStaffIndex + day) % activeStaff.length;
         const staffMember = activeStaff[staffIndex];
@@ -176,29 +223,44 @@ const RoundRobinScheduler = () => {
     if (scheduleDate) {
       setStaffSchedule(generateStaffSchedule());
     }
-  }, [staff, currentStaffIndex, scheduleDate, numDays, includeWeekends, defaultTask]);
+  }, [
+    staff,
+    currentStaffIndex,
+    scheduleDate,
+    numDays,
+    includeWeekends,
+    defaultTask,
+  ]);
 
-  const formatDate = (dateString) => {
+  const formatDate = (value) => {
     try {
-      if (!dateString || dateString === "Invalid Date") {
+      if (!value) return "Invalid Date";
+      let date;
+      if (value instanceof Date) {
+        date = value;
+      } else if (typeof value === "string") {
+        // Handle pure YYYY-MM-DD safely in local time
+        const m = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (m) {
+          const [_, y, mo, d] = m;
+          date = new Date(Number(y), Number(mo) - 1, Number(d));
+        } else {
+          // Fallback to native parser for full ISO strings
+          date = new Date(value);
+        }
+      } else {
         return "Invalid Date";
       }
 
-      // Parse YYYY-MM-DD format
-      const [year, month, day] = dateString.split("-").map(Number);
-      const date = new Date(year, month - 1, day);
-
-      if (isNaN(date.getTime())) {
-        return "Invalid Date";
-      }
+      if (isNaN(date.getTime())) return "Invalid Date";
 
       return date.toLocaleDateString("en-US", {
         weekday: "short",
         month: "short",
         day: "numeric",
       });
-    } catch (error) {
-      console.error("Error formatting date for display:", error);
+    } catch (e) {
+      console.error("Error formatting date for display:", e);
       return "Invalid Date";
     }
   };
@@ -241,42 +303,21 @@ const RoundRobinScheduler = () => {
     });
   };
 
-  const assignments = useMemo(() => buildAssignments(), [vehicleSchedule, staffSchedule, defaultTask]);
+  const assignments = useMemo(
+    () => buildAssignments(),
+    [vehicleSchedule, staffSchedule, defaultTask]
+  );
 
-  const saveAssignments = async () => {
-    const assignmentsToSave = assignments;
-    if (assignmentsToSave.length === 0) {
-      setSaveMessage("No assignments to save.");
-      return;
-    }
-    setSaving(true);
-    setSaveMessage("");
-    try {
-      await Promise.all(
-        assignmentsToSave.map((a) =>
-          addSchedule({
-            date: a.date,
-            vehicle: a.vehicle,
-            driver: a.driver,
-            task: a.task,
-            status: a.status,
-          })
-        )
-      );
-      setSaveMessage(`Saved ${assignmentsToSave.length} assignments.`);
-    } catch (e) {
-      setSaveMessage(e?.message || "Failed to save assignments");
-    } finally {
-      setSaving(false);
-    }
-  };
+  // Removed saveAssignments functionality
 
   return (
     <div className="round-robin-scheduler">
       <div className="scheduler-header">
         <div>
           <h2>Round Robin Scheduler</h2>
-          <p className="scheduler-subtitle">Assign vehicles and drivers evenly over a date range.</p>
+          <p className="scheduler-subtitle">
+            Assign vehicles and drivers evenly over a date range.
+          </p>
         </div>
         <div className="scheduler-controls">
           <div className="control-group">
@@ -307,8 +348,13 @@ const RoundRobinScheduler = () => {
           </div>
           <div className="control-group">
             <label>Task</label>
-            <select value={defaultTask} onChange={(e) => setDefaultTask(e.target.value)}>
-              <option value="Regular Duty Assignment">Regular Duty Assignment</option>
+            <select
+              value={defaultTask}
+              onChange={(e) => setDefaultTask(e.target.value)}
+            >
+              <option value="Regular Duty Assignment">
+                Regular Duty Assignment
+              </option>
               <option value="Route Coverage">Route Coverage</option>
               <option value="Maintenance Support">Maintenance Support</option>
             </select>
@@ -323,12 +369,8 @@ const RoundRobinScheduler = () => {
             <button onClick={resetSchedules} className="control-btn reset">
               Reset
             </button>
-            <button onClick={saveAssignments} className="control-btn primary" disabled={saving}>
-              {saving ? "Saving..." : "Save Assignments"}
-            </button>
           </div>
         </div>
-        {saveMessage && <div className="save-message">{saveMessage}</div>}
       </div>
 
       <div className="scheduler-grid">
@@ -344,28 +386,24 @@ const RoundRobinScheduler = () => {
             </span>
           </div>
           <div className="schedule-list">
-            {vehicleSchedule.slice(0, 10).map((item, index) => (
-              <div key={index} className="schedule-item vehicle">
-                <div className="schedule-date">{formatDate(item.date)}</div>
+            {persistedServicing.slice(0, 10).map((s) => (
+              <div key={s.id} className="schedule-item vehicle">
+                <div className="schedule-date">{formatDate(s.date)}</div>
                 <div className="schedule-details">
-                  <div className="schedule-vehicle">{item.vehicle}</div>
-                  <div className="schedule-task">{item.task}</div>
-                  <div className="schedule-info">
-                    {item.make} {item.model}
-                  </div>
+                  <div className="schedule-vehicle">{s.vehicle}</div>
+                  <div className="schedule-task">{s.task}</div>
+                  <div className="schedule-info">{s.driver}</div>
+                  <div className="schedule-info">{s.status?.replace("_", " ")}</div>
                 </div>
               </div>
             ))}
-            {vehicleSchedule.length === 0 && (
-              <div className="no-data">
-                No vehicles available for scheduling
-              </div>
+            {persistedServicing.length === 0 && (
+              <div className="no-data">No servicing schedules found</div>
             )}
           </div>
         </div>
 
-        {/* Staff Duty Schedule */
-        }
+        {/* Staff Duty Schedule */}
         <div className="schedule-section">
           <div className="section-header">
             <h3>👥 Staff Duty Schedule</h3>

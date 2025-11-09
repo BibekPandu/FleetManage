@@ -152,19 +152,24 @@ router.post('/predict', [
 
     // Calculate fuel consumption using multiple regression
     const prediction = calculateFuelConsumption(inputData);
-    
-    // Store prediction in database for historical analysis
-    const [result] = await pool.execute(
-      `INSERT INTO fuel_predictions 
-       (vehicle_id, predicted_date, predicted_consumption, factors_considered) 
-       VALUES (?, ?, ?, ?)`,
-      [
-        inputData.vehicleId || null,
-        new Date(),
-        prediction.totalFuelNeeded,
-        JSON.stringify(inputData)
-      ]
-    );
+
+    // Try to store prediction in database for historical analysis
+    let predictionId = null;
+    try {
+      const [result] = await pool.execute(
+        `INSERT INTO fuel_predictions 
+         (vehicle_id, predicted_date, predicted_consumption, factors_considered) 
+         VALUES (?, CURRENT_DATE, ?, ?)`,
+        [
+          inputData.vehicleId || null,
+          prediction.totalFuelNeeded,
+          JSON.stringify(inputData)
+        ]
+      );
+      predictionId = result.insertId;
+    } catch (dbErr) {
+      console.warn('⚠️ Failed to persist fuel prediction history:', dbErr.message);
+    }
 
     if (process.env.NODE_ENV !== 'production') {
       console.log('✅ Fuel prediction completed:', prediction);
@@ -175,7 +180,7 @@ router.post('/predict', [
       prediction: {
         ...prediction,
         inputFactors: inputData,
-        predictionId: result.insertId
+        predictionId
       }
     });
 

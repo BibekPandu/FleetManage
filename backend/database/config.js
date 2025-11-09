@@ -124,7 +124,7 @@ const initializeDatabase = async () => {
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS fuel_predictions (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        vehicle_id INT NOT NULL,
+        vehicle_id INT NULL,
         predicted_date DATE NOT NULL,
         predicted_consumption DECIMAL(10,2) NOT NULL,
         actual_consumption DECIMAL(10,2),
@@ -132,9 +132,54 @@ const initializeDatabase = async () => {
         factors_considered TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE
+        FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL
       )
     `);
+
+    // Ensure fuel_predictions.vehicle_id is nullable and FK deletes set NULL (migrate older schema)
+    try {
+      // Check if vehicle_id is NOT NULL currently
+      const [vehNullCheck] = await connection.execute(`
+        SELECT IS_NULLABLE, COLUMN_TYPE
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'fuel_predictions'
+          AND COLUMN_NAME = 'vehicle_id'
+      `);
+      const isNullable = vehNullCheck[0] && vehNullCheck[0].IS_NULLABLE === 'YES';
+      if (!isNullable) {
+        // Find and drop the existing foreign key constraint on vehicle_id
+        const [fkRows] = await connection.execute(`
+          SELECT CONSTRAINT_NAME
+          FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+          WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = 'fuel_predictions'
+            AND COLUMN_NAME = 'vehicle_id'
+            AND REFERENCED_TABLE_NAME IS NOT NULL
+        `);
+        if (fkRows.length) {
+          for (const row of fkRows) {
+            try {
+              await connection.execute(
+                `ALTER TABLE fuel_predictions DROP FOREIGN KEY \`${row.CONSTRAINT_NAME}\``
+              );
+            } catch (e) {
+              console.warn('⚠️ Unable to drop FK on fuel_predictions:', e.message);
+            }
+          }
+        }
+        // Modify column to allow NULL
+        await connection.execute(
+          'ALTER TABLE fuel_predictions MODIFY COLUMN vehicle_id INT NULL'
+        );
+        // Recreate FK with ON DELETE SET NULL
+        await connection.execute(
+          'ALTER TABLE fuel_predictions ADD CONSTRAINT fk_fuel_predictions_vehicle_id FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL'
+        );
+      }
+    } catch (e) {
+      console.warn("⚠️ Fuel predictions schema migration warning:", e.message);
+    }
 
     // Create reports table
     await connection.execute(`
