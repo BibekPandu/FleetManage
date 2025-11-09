@@ -190,6 +190,137 @@ router.post('/predict', [
   }
 });
 
+// POST /api/fuel-prediction/predict-kpl - Predict using car-spec regression (mileage_kpl)
+router.post(
+  '/predict-kpl',
+  [
+    authenticateToken,
+    body('cylinders').isInt({ min: 3, max: 12 }).withMessage('cylinders must be 3-12'),
+    body('horsepower').isFloat({ gt: 0 }).withMessage('horsepower must be > 0'),
+    body('displacement_in_cc').isFloat({ gt: 0 }).withMessage('displacement_in_cc must be > 0'),
+    body('weight_in_kg').isFloat({ gt: 0 }).withMessage('weight_in_kg must be > 0'),
+    body('acceleration').isFloat({ gt: 0 }).withMessage('acceleration must be > 0'),
+    body('model_year').isInt().withMessage('model_year is required'),
+    body('origin').isInt({ min: 1, max: 3 }).withMessage('origin must be 1,2,3'),
+    body('distance').optional().isFloat({ min: 1, max: 1000 }).withMessage('distance must be 1-1000'),
+    body('fuelPriceNPR').optional().isFloat({ min: 0 }).withMessage('fuel price must be >= 0'),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const {
+        cylinders,
+        horsepower,
+        displacement_in_cc,
+        weight_in_kg,
+        acceleration,
+        model_year,
+        origin,
+        distance,
+        fuelPriceNPR,
+        vehicleId,
+      } = req.body;
+
+      // Regression coefficients from notebook
+      const B0 = typeof process.env.MLR_INTERCEPT === 'string' ? Number(process.env.MLR_INTERCEPT) : 1.2;
+      const mileage_kpl_unclamped =
+        B0 +
+        (-0.076051) * Number(cylinders) +
+        (-0.008749) * Number(horsepower) +
+        (0.000399) * Number(displacement_in_cc) +
+        (-0.006169) * Number(weight_in_kg) +
+        (0.015369) * Number(acceleration) +
+        (0.334638) * Number(model_year) +
+        (0.580536) * Number(origin);
+
+      if (!Number.isFinite(mileage_kpl_unclamped)) {
+        return res.status(400).json({ message: 'Invalid inputs produced a non-finite mileage value' });
+      }
+
+      // Guard against zero/negative mileage
+      const mileage_kpl = Math.max(0.01, mileage_kpl_unclamped);
+      const fuelConsumptionPer100km = 100 / mileage_kpl;
+
+      const useDistance = typeof distance === 'number' ? distance : 0;
+      const totalFuelNeeded = useDistance > 0 ? (fuelConsumptionPer100km * useDistance) / 100 : 0;
+
+      // Determine price: request override > default by origin proxy via engineType mapping not available here
+      // Fallback to diesel price for cost if not provided
+      const fallbackPrice = typeof NEPAL_FUEL_PRICES_NPR.diesel === 'number' ? NEPAL_FUEL_PRICES_NPR.diesel : 175;
+      const price =
+        typeof fuelPriceNPR === 'number' && !Number.isNaN(fuelPriceNPR)
+          ? fuelPriceNPR
+          : fallbackPrice;
+      const totalCostNpr = totalFuelNeeded * price;
+
+      const prediction = {
+        fuelConsumptionPer100km: Math.round(fuelConsumptionPer100km * 100) / 100,
+        totalFuelNeeded: Math.round(totalFuelNeeded * 100) / 100,
+        totalCost: Math.round(totalCostNpr * 100) / 100,
+        fuelPrice: Math.round(price * 100) / 100,
+        currency: 'NPR',
+        distance: useDistance,
+        efficiency: Math.round(mileage_kpl * 100) / 100, // km/l
+      };
+
+      // Try to store prediction
+      let predictionId = null;
+      try {
+        const [result] = await pool.execute(
+          `INSERT INTO fuel_predictions 
+           (vehicle_id, predicted_date, predicted_consumption, factors_considered) 
+           VALUES (?, CURRENT_DATE, ?, ?)`,
+          [
+            vehicleId || null,
+            prediction.totalFuelNeeded,
+            JSON.stringify({
+              cylinders,
+              horsepower,
+              displacement_in_cc,
+              weight_in_kg,
+              acceleration,
+              model_year,
+              origin,
+              distance: useDistance,
+              fuelPriceNPR: price,
+              model: 'regression_kpl',
+            }),
+          ],
+        );
+        predictionId = result.insertId;
+      } catch (dbErr) {
+        console.warn('⚠️ Failed to persist fuel prediction history (kpl):', dbErr.message);
+      }
+
+      return res.json({
+        message: 'Fuel prediction (regression) completed successfully',
+        prediction: {
+          ...prediction,
+          inputFactors: {
+            cylinders,
+            horsepower,
+            displacement_in_cc,
+            weight_in_kg,
+            acceleration,
+            model_year,
+            origin,
+            distance: useDistance,
+            fuelPriceNPR: price,
+          },
+          predictionId,
+        },
+      });
+    } catch (error) {
+      console.error('❌ Error in fuel prediction (kpl):', error);
+      return res.status(500).json({ message: 'Error calculating fuel prediction (kpl)' });
+    }
+  },
+);
+
 // GET /api/fuel-prediction/history - Get prediction history
 router.get('/history', authenticateToken, async (req, res) => {
   try {

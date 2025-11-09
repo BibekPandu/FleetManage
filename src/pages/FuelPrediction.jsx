@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PredictionForm from "../components/fuelPrediction/PredictionForm";
+import PredictionFormKpl from "../components/fuelPrediction/PredictionFormKpl";
 import PredictionResult from "../components/fuelPrediction/PredictionResult";
 import PredictionHistory from "../components/fuelPrediction/PredictionHistory";
 import PredictionMiniChart from "../components/fuelPrediction/PredictionMiniChart";
@@ -9,6 +10,7 @@ const FuelPrediction = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [history, setHistory] = useState([]);
+  const [mode, setMode] = useState("heuristic"); // 'heuristic' | 'regression'
 
   const loadHistory = async () => {
     try {
@@ -26,7 +28,7 @@ const FuelPrediction = () => {
     loadHistory();
   }, []);
 
-  const handlePredict = async (formData) => {
+  const predictTo = async (path, formData) => {
     setLoading(true);
     setError(null);
     setPredictionResult(null);
@@ -35,7 +37,7 @@ const FuelPrediction = () => {
       const token = localStorage.getItem("fleetfox_token");
 
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL || ''}/fuel-prediction/predict`,
+        `${process.env.REACT_APP_API_BASE_URL || ''}/fuel-prediction/${path}`,
         {
           method: "POST",
           headers: {
@@ -64,6 +66,9 @@ const FuelPrediction = () => {
     }
   };
 
+  const handlePredictHeuristic = (formData) => predictTo("predict", formData);
+  const handlePredictKpl = (formData) => predictTo("predict-kpl", formData);
+
   return (
     <div className="fuel-prediction-page">
       <div className="page-header">
@@ -76,11 +81,34 @@ const FuelPrediction = () => {
       </div>
       <div
         style={{
-          maxWidth: "600px",
+          maxWidth: "640px",
           margin: "0 auto",
         }}
       >
-        <PredictionForm onPredict={handlePredict} loading={loading} />
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <button
+            className="form-button"
+            type="button"
+            onClick={() => setMode("heuristic")}
+            style={{ opacity: mode === "heuristic" ? 1 : 0.6 }}
+          >
+            Heuristic Model
+          </button>
+          <button
+            className="form-button"
+            type="button"
+            onClick={() => setMode("regression")}
+            style={{ opacity: mode === "regression" ? 1 : 0.6 }}
+          >
+            Regression (Car Specs)
+          </button>
+        </div>
+
+        {mode === "heuristic" ? (
+          <PredictionForm onPredict={handlePredictHeuristic} loading={loading} />
+        ) : (
+          <PredictionFormKpl onPredict={handlePredictKpl} loading={loading} />
+        )}
         {error && <div className="error-message">{error}</div>}
         <PredictionResult result={predictionResult} loading={loading} />
         <PredictionMiniChart items={history} />
