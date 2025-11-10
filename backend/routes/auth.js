@@ -109,7 +109,7 @@ router.post(
       const identifier = username?.trim();
 
       if (process.env.NODE_ENV !== "production") {
-        console.log("🔍 Login attempt for username:", username);
+        console.log("Login attempt for username:", username);
       }
 
       // Find user by username OR email
@@ -119,19 +119,19 @@ router.post(
       );
 
       if (process.env.NODE_ENV !== "production") {
-        console.log("📊 Found users:", users.length);
+        console.log("Found users:", users.length);
       }
 
       if (users.length === 0) {
         if (process.env.NODE_ENV !== "production") {
-          console.log("❌ No user found with identifier:", identifier);
+          console.log("No user found with identifier:", identifier);
         }
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       const user = users[0];
       if (process.env.NODE_ENV !== "production") {
-        console.log("👤 User found:", {
+        console.log("User found:", {
           id: user.id,
           username: user.username,
           role: user.role,
@@ -141,12 +141,12 @@ router.post(
       // Check password
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (process.env.NODE_ENV !== "production") {
-        console.log("🔐 Password valid:", isPasswordValid);
+        console.log(" Password valid:", isPasswordValid);
       }
 
       if (!isPasswordValid) {
         if (process.env.NODE_ENV !== "production") {
-          console.log("❌ Invalid password for user:", username);
+          console.log(" Invalid password for user:", username);
         }
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -163,7 +163,7 @@ router.post(
       );
 
       if (process.env.NODE_ENV !== "production") {
-        console.log("✅ Login successful for user:", identifier);
+        console.log("Login successful for user:", identifier);
       }
 
       if (user.role === "driver" || user.role === "manager") {
@@ -194,7 +194,7 @@ router.post(
         },
       });
     } catch (error) {
-      console.error("❌ Login error:", error);
+      console.error("Login error:", error);
       res.status(500).json({ message: "Server error during login" });
     }
   }

@@ -11,11 +11,12 @@ const FuelPrediction = () => {
   const [error, setError] = useState(null);
   const [history, setHistory] = useState([]);
   const [mode, setMode] = useState("heuristic"); // 'heuristic' | 'regression'
+  const API_BASE = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
 
   const loadHistory = async () => {
     try {
       const token = localStorage.getItem("fleetfox_token");
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || ''}/fuel-prediction/history`, {
+      const response = await fetch(`${API_BASE}/fuel-prediction/history`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) return;
@@ -37,7 +38,7 @@ const FuelPrediction = () => {
       const token = localStorage.getItem("fleetfox_token");
 
       const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL || ''}/fuel-prediction/${path}`,
+        `${API_BASE}/fuel-prediction/${path}`,
         {
           method: "POST",
           headers: {

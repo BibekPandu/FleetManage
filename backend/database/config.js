@@ -20,11 +20,11 @@ const pool = mysql.createPool(dbConfig);
 const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
-    console.log("✅ Database connected successfully!");
+    console.log("Database connected successfully!");
     connection.release();
     return true;
   } catch (error) {
-    console.error("❌ Database connection failed:", error.message);
+    console.error(" Database connection failed:", error.message);
     return false;
   }
 };
@@ -77,7 +77,10 @@ const initializeDatabase = async () => {
         `);
       }
     } catch (e) {
-      console.warn("⚠️ Unable to verify/add 'driver' column on vehicles table:", e.message);
+      console.warn(
+        " Unable to verify/add 'driver' column on vehicles table:",
+        e.message
+      );
     }
 
     // Create staff table
@@ -146,7 +149,8 @@ const initializeDatabase = async () => {
           AND TABLE_NAME = 'fuel_predictions'
           AND COLUMN_NAME = 'vehicle_id'
       `);
-      const isNullable = vehNullCheck[0] && vehNullCheck[0].IS_NULLABLE === 'YES';
+      const isNullable =
+        vehNullCheck[0] && vehNullCheck[0].IS_NULLABLE === "YES";
       if (!isNullable) {
         // Find and drop the existing foreign key constraint on vehicle_id
         const [fkRows] = await connection.execute(`
@@ -164,21 +168,24 @@ const initializeDatabase = async () => {
                 `ALTER TABLE fuel_predictions DROP FOREIGN KEY \`${row.CONSTRAINT_NAME}\``
               );
             } catch (e) {
-              console.warn('⚠️ Unable to drop FK on fuel_predictions:', e.message);
+              console.warn(
+                " Unable to drop FK on fuel_predictions:",
+                e.message
+              );
             }
           }
         }
         // Modify column to allow NULL
         await connection.execute(
-          'ALTER TABLE fuel_predictions MODIFY COLUMN vehicle_id INT NULL'
+          "ALTER TABLE fuel_predictions MODIFY COLUMN vehicle_id INT NULL"
         );
         // Recreate FK with ON DELETE SET NULL
         await connection.execute(
-          'ALTER TABLE fuel_predictions ADD CONSTRAINT fk_fuel_predictions_vehicle_id FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL'
+          "ALTER TABLE fuel_predictions ADD CONSTRAINT fk_fuel_predictions_vehicle_id FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL"
         );
       }
     } catch (e) {
-      console.warn("⚠️ Fuel predictions schema migration warning:", e.message);
+      console.warn(" Fuel predictions schema migration warning:", e.message);
     }
 
     // Create reports table
@@ -225,14 +232,17 @@ const initializeDatabase = async () => {
         `);
       }
     } catch (e) {
-      console.warn("⚠️ Unable to verify/add 'driver' column on expenses table:", e.message);
+      console.warn(
+        " Unable to verify/add 'driver' column on expenses table:",
+        e.message
+      );
     }
 
     console.log("✅ Database tables created successfully!");
     connection.release();
     return true;
   } catch (error) {
-    console.error("❌ Database initialization failed:", error.message);
+    console.error(" Database initialization failed:", error.message);
     return false;
   }
 };

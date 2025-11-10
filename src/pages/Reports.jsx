@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import "../styles/Reports.css";
 import { useReports } from "../context/ReportsContext";
 import StatCard from "../components/reports/StatCard";
-import SchedulesBarChart from "../components/reports/SchedulesBarChart";
 import RoundRobinScheduler from "../components/reports/RoundRobinScheduler";
 
 const Reports = () => {
@@ -20,11 +19,6 @@ const Reports = () => {
     fetchAllStats();
     // eslint-disable-next-line
   }, []);
-
-  // Example: Schedules per day from logbookStats or another stat source
-  // You may need to adjust this if you want to show a chart from a specific stat
-  const scheduleChartData = [];
-  // If you want to show logbook entries by vehicle or driver, you can use logbookStats.byVehicle/byDriver
 
   return (
     <div className="reports-page">
@@ -45,11 +39,6 @@ const Reports = () => {
           value={logbookStats?.total ?? "-"}
         />
         <StatCard title="Total Expenses" value={expensesStats?.total ?? "-"} />
-      </div>
-      {/* Example chart placeholder, update as needed */}
-      <div className="charts-container">
-        <h2>Schedules per Day</h2>
-        <SchedulesBarChart data={scheduleChartData} />
       </div>
     </div>
   );
